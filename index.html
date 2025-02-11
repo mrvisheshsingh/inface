@@ -1,0 +1,2200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INFACE-Advance Attendance System</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Electrolize&family=Orbitron:wght@400..900&family=Zain:ital,wght@0,200;0,300;0,400;0,700;0,800;0,900;1,300;1,400&display=swap');
+    </style>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Add this right after the opening <body> tag -->
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
+
+    <!-- Preloader -->
+    <div class="preloader">
+        <div class="loader">
+            <div class="scanner">
+                <div class="fingerprint">
+                    <img src="assets/happy.png" alt="Happy Face">
+                </div>
+                <div class="scanning-line"></div>
+            </div>
+            <div class="loading-text">
+                <span>I</span>
+                <span>n</span>
+                <span>F</span>
+                <span>a</span>
+                <span>c</span>
+                <span>e</span>
+            </div>
+            <div class="loading-status">Initializing System...</div>
+        </div>
+    </div>
+
+    <div id="particles-js"></div>
+    
+    <header>
+        <nav class="navbar">
+            <!-- Logged Out Menu -->
+            <div class="menu logged-out-menu">
+                <div class="left-menu">
+                    <ul>
+                        <li><a href="#" data-page="logged-out/home">Home</a></li>
+                        <li><a href="#" data-page="logged-out/about">About</a></li>
+                        <li><a href="#" data-page="logged-out/features">Features</a></li>
+                    </ul>
+                </div>
+                
+                <div class="logo">
+                    <h1>InFace</h1>
+                </div>
+                
+                <div class="right-menu">
+                    <ul>
+                        <li><a href="#" data-page="logged-out/support">Support</a></li>
+                        <li class="dropdown auth-dropdown">
+                            <a href="#" class="btn-auth dropdown-toggle">
+                                Login/Register
+                                <i class="fas fa-chevron-down"></i>
+                            </a>
+                            <ul class="dropdown-menu auth-menu">
+                                <li>
+                                    <a href="#" onclick="openLoginForm()">Login</a>
+                                </li>
+                                <li>
+                                    <a href="#" onclick="openRegisterForm()">Register</a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Logged In Menu -->
+            <div class="menu logged-in-menu" style="display: none;">
+                <div class="left-menu">
+                    <ul>
+                        <li><a href="#" data-page="logged-in/dashboard">Dashboard</a></li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle">
+                                Attendance
+                                <i class="fas fa-chevron-down"></i>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#" data-page="logged-in/attendance/mark">Mark Attendance</a></li>
+                                <li><a href="#" data-page="logged-in/attendance/view">View Attendance</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle">
+                                Reports
+                                <i class="fas fa-chevron-down"></i>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#" data-page="logged-in/reports/daily">Daily Reports</a></li>
+                                <li><a href="#" data-page="logged-in/reports/monthly">Monthly Reports</a></li>
+                                <li><a href="#" data-page="logged-in/reports/export">Export Reports</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="logo">
+                    <h1>InFace</h1>
+                </div>
+                
+                <div class="right-menu">
+                    <ul>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle">
+                                Profile
+                                <i class="fas fa-chevron-down"></i>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#" data-page="logged-in/profile/my-profile">My Profile</a></li>
+                                <li><a href="#" data-page="logged-in/profile/manage-users">Manage Users</a></li>
+                                <li><a href="#" data-page="logged-in/profile/settings">Settings</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#" data-page="logged-in/notifications">Notifications</a></li>
+                        <li><a href="#" class="btn-logout">Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <button class="attendance-btn" onclick="openAttendanceForm()">
+            Mark Attendance
+        </button>
+    </main>
+
+    <!-- Attendance Popup Form -->
+    <div id="attendancePopup" class="popup">
+        <div class="popup-content">
+            <span class="close-btn" onclick="closeAttendanceForm()">&times;</span>
+            <h2>Mark Attendance</h2>
+            <form id="attendanceForm" onsubmit="submitAttendance(event)">
+                <div class="form-group">
+                    <label for="uid">UID (12 digits)</label>
+                    <input type="text" id="uid" 
+                           pattern="\d{12}" 
+                           maxlength="12" 
+                           placeholder="Enter your 12-digit UID"
+                           required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="password-field">
+                        <input type="password" id="password" 
+                               placeholder="Enter your password"
+                               required>
+                        <i class="fas fa-eye-slash password-toggle" onclick="togglePassword('password', this)"></i>
+                    </div>
+                </div>
+                <button type="submit" class="submit-btn">Take Attendance</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Login Form -->
+    <div id="loginPopup" class="popup">
+        <div class="popup-content">
+            <span class="close-btn" onclick="closeLoginForm()">&times;</span>
+            <h2>Login</h2>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="loginUid">UID</label>
+                    <input type="text" 
+                           id="loginUid" 
+                           pattern="\d{12}"
+                           maxlength="12"
+                           placeholder="Enter your UID"
+                           required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <div class="password-field">
+                        <input type="password" id="loginPassword" 
+                               placeholder="Enter your password"
+                               required>
+                        <i class="fas fa-eye-slash password-toggle" onclick="togglePassword('loginPassword', this)"></i>
+                    </div>
+                </div>
+                <button type="submit" class="submit-btn">Login</button>
+                <p class="form-footer">
+                    Don't have an account? <a href="#" onclick="switchToRegister(event)">Register</a>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Register Form -->
+    <div id="registerPopup" class="popup">
+        <div class="popup-content">
+            <span class="close-btn" onclick="closeRegisterForm()">&times;</span>
+            <h2>Register</h2>
+            <form id="registerForm" onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label for="registerUid">UID</label>
+                    <div class="uid-field">
+                        <input type="text" id="registerUid" 
+                               pattern="\d{12}" 
+                               maxlength="12" 
+                               placeholder="Your UID will appear here"
+                               readonly 
+                               required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="registerName">Full Name</label>
+                    <input type="text" id="registerName" 
+                           placeholder="Enter your full name"
+                           required>
+                </div>
+                <div class="form-group email-group">
+                    <label for="registerEmail">Email</label>
+                    <div class="email-field">
+                        <input type="email" id="registerEmail" 
+                               placeholder="Enter your email address"
+                               required>
+                        <button type="button" id="verifyEmailBtn" class="verify-btn" style="display: none;">
+                            <i class="fas fa-envelope"></i> Verify Email
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Add OTP container -->
+                <div class="otp-container" style="display: none;">
+                    <label>Enter OTP sent to your email</label>
+                    <div class="otp-inputs">
+                        <input type="text" maxlength="1" class="otp-input">
+                        <input type="text" maxlength="1" class="otp-input">
+                        <input type="text" maxlength="1" class="otp-input">
+                        <input type="text" maxlength="1" class="otp-input">
+                        <input type="text" maxlength="1" class="otp-input">
+                        <input type="text" maxlength="1" class="otp-input">
+                    </div>
+                    <div class="otp-timer">Code expires in: <span>05:00</span></div>
+                </div>
+
+                <!-- Update the face enrollment container -->
+                <div class="face-enrollment-container" style="display: none;">
+                    <button type="button" id="enrollFaceBtn" class="enroll-face-btn">
+                        <i class="fas fa-camera"></i>
+                        <span>Enroll Face Data</span>
+                    </button>
+                    <div class="enrollment-status"></div>
+                </div>
+
+                <!-- Add password fields container after face enrollment -->
+                <div class="password-fields-container" style="display: none;">
+                    <div class="form-group">
+                        <label for="registerPassword">Password</label>
+                        <div class="password-field">
+                            <input type="password" id="registerPassword" 
+                                   placeholder="Enter your password"
+                                   required>
+                            <i class="fas fa-eye-slash password-toggle" onclick="togglePassword('registerPassword', this)"></i>
+                        </div>
+                        <div class="password-strength"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <div class="password-field">
+                            <input type="password" id="confirmPassword" 
+                                   placeholder="Confirm your password"
+                                   required>
+                            <i class="fas fa-eye-slash password-toggle" onclick="togglePassword('confirmPassword', this)"></i>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="submit-btn">Register</button>
+                <p class="form-footer">
+                    Already have an account? <a href="#" onclick="switchToLogin(event)">Login</a>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add OTP verification HTML after email field
+    <div class="otp-container" style="display: none;">
+        <label>Enter OTP sent to your email</label>
+        <div class="otp-inputs">
+            <input type="text" maxlength="1" class="otp-input">
+            <input type="text" maxlength="1" class="otp-input">
+            <input type="text" maxlength="1" class="otp-input">
+            <input type="text" maxlength="1" class="otp-input">
+            <input type="text" maxlength="1" class="otp-input">
+            <input type="text" maxlength="1" class="otp-input">
+        </div>
+        <div class="otp-timer">Code expires in: <span>05:00</span></div>
+    </div>
+    -->
+
+    <!-- Particle.js Scripts -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        particlesJS.load('particles-js', 'https://raw.githubusercontent.com/VincentGarreau/particles.js/master/demo/particles.json');
+
+        function openAttendanceForm() {
+            document.getElementById('attendancePopup').style.display = 'flex';
+        }
+
+        function closeAttendanceForm() {
+            document.getElementById('attendancePopup').style.display = 'none';
+        }
+
+        function submitAttendance(event) {
+            event.preventDefault();
+            const uid = document.getElementById('uid').value;
+            const password = document.getElementById('password').value;
+            
+            // Here you can add your attendance submission logic
+            console.log('Attendance submitted for UID:', uid);
+            
+            // Clear form and close popup
+            event.target.reset();
+            closeAttendanceForm();
+        }
+
+        // Modified preloader code
+        document.addEventListener('DOMContentLoaded', function() {
+            const preloader = document.querySelector('.preloader');
+            
+            // Disable right click on preloader
+            preloader.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                return false;
+            });
+
+            // Disable text selection on preloader
+            preloader.style.userSelect = 'none';
+            preloader.style.webkitUserSelect = 'none';
+            preloader.style.msUserSelect = 'none';
+            
+            // Set minimum display time to 3 seconds
+            setTimeout(() => {
+                preloader.classList.add('preloader-finish');
+                setTimeout(() => {
+                    preloader.style.display = 'none';
+                }, 500); // Fade out animation time
+            }, 3000); // Minimum display time
+        });
+
+        // Add scroll effect for header
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Login and Register Form Functions
+        function openLoginForm() {
+            document.getElementById('loginPopup').style.display = 'flex';
+        }
+
+        function closeLoginForm() {
+            document.getElementById('loginPopup').style.display = 'none';
+        }
+
+        function openRegisterForm() {
+            document.getElementById('registerPopup').style.display = 'flex';
+        }
+
+        function closeRegisterForm() {
+            document.getElementById('registerPopup').style.display = 'none';
+        }
+
+        // First, add this CSS for the admin popup
+        const styleSheet = document.createElement("style");
+        styleSheet.textContent = `
+        .admin-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.7);
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            text-align: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            color: white;
+            min-width: 400px;
+        }
+
+        .admin-popup.show {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .admin-popup .crown-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 30px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .admin-popup h2 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .admin-popup p {
+            font-size: 18px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            animation: sparkle 2s linear infinite;
+        }
+
+        @keyframes sparkle {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+        `;
+        document.head.appendChild(styleSheet);
+
+        // Add admin popup HTML
+        document.body.insertAdjacentHTML('beforeend', `
+        <div class="admin-popup" id="adminPopup">
+            <div class="crown-icon">
+                <i class="fas fa-crown" style="font-size: 80px; color: gold;"></i>
+            </div>
+            <h2>Welcome Back, Admin!</h2>
+            <p>Happy to see you onboard. Your presence makes our system more secure and efficient.</p>
+            <div class="sparkle" style="top: 20%; left: 20%;"></div>
+            <div class="sparkle" style="top: 30%; right: 20%;"></div>
+            <div class="sparkle" style="bottom: 20%; left: 30%;"></div>
+        </div>
+        `);
+
+        // Update the handleLogin function
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const enteredUid = document.getElementById('loginUid').value;
+            const enteredPassword = document.getElementById('loginPassword').value;
+
+            try {
+                // Special case for ADMIN - no password required
+                if (enteredUid === 'ADMIN') {
+                    // Show admin popup
+                    const adminPopup = document.getElementById('adminPopup');
+                    adminPopup.classList.add('show');
+                    
+                    // Store admin session
+                    const adminSession = {
+                        uid: 'ADMIN',
+                        name: 'Administrator',
+                        email: 'admin@system.com',
+                        isAdmin: true
+                    };
+                    localStorage.setItem('userSession', JSON.stringify(adminSession));
+                    localStorage.setItem('supabase.auth.token', JSON.stringify({ role: 'admin' }));
+
+                    // Close login form
+                    closeLoginForm();
+                    
+                    // Update UI after delay
+                    setTimeout(() => {
+                        adminPopup.classList.remove('show');
+                        toggleMenu(true);
+                        showAlert('Welcome Administrator!', 'success');
+                    }, 3000);
+                    
+                    return;
+                }
+
+                // Regular login code for non-admin users
+                showAlert('Logging in...', 'info', 'loginForm');
+
+                // First, fetch user data by UID
+                const { data: userData, error: fetchError } = await supabaseClient
+                    .from('users')
+                    .select('*')
+                    .eq('uid', enteredUid)
+                    .single();
+
+                if (fetchError || !userData) {
+                    throw new Error('Invalid UID or password');
+                }
+
+                // Check if password matches
+                if (userData.password !== enteredPassword) {
+                    throw new Error('Invalid UID or password');
+                }
+
+                // If credentials are correct, sign in with Supabase Auth
+                const { data, error: signInError } = await supabaseClient.auth.signInWithPassword({
+                    email: userData.email,
+                    password: enteredPassword
+                });
+
+                if (signInError) {
+                    console.error('Auth error:', signInError);
+                    throw new Error('Authentication failed');
+                }
+
+                // Store user session
+                localStorage.setItem('userSession', JSON.stringify({
+                    uid: userData.uid,
+                    name: userData.full_name,
+                    email: userData.email
+                }));
+
+                showAlert(`Welcome back, ${userData.full_name}!`, 'success', 'loginForm');
+                
+                setTimeout(() => {
+                    closeLoginForm();
+                    toggleMenu(true);
+                }, 1500);
+
+            } catch (error) {
+                console.error('Login error:', error);
+                showAlert(error.message, 'error', 'loginForm');
+            }
+        }
+
+        // Update the handleRegister function
+        async function handleRegister(event) {
+            event.preventDefault();
+            
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                showAlert('Passwords do not match!', 'error', 'registerForm');
+                return;
+            }
+            
+            try {
+                const userData = {
+                    uid: document.getElementById('registerUid').value,
+                    name: document.getElementById('registerName').value,
+                    email: document.getElementById('registerEmail').value
+                };
+                
+                // First create user in Supabase Auth
+                const { data, error: authError } = await supabaseClient.auth.signUp({
+                    email: userData.email,
+                    password: password
+                });
+                
+                if (authError) throw authError;
+                if (!data.user) throw new Error('Failed to create user account');
+
+                // Then store user data
+                const { error: dataError } = await supabaseClient
+                    .from('users')
+                    .insert([{
+                        id: data.user.id,
+                        uid: userData.uid,
+                        full_name: userData.name,
+                        email: userData.email,
+                        password: password
+                    }]);
+                
+                if (dataError) throw dataError;
+
+                // Now save face data if it exists
+                const capturedFrame = localStorage.getItem('captured_face_frame');
+                if (capturedFrame) {
+                    const response = await fetch('http://localhost:5000/enroll-face', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            frame: capturedFrame,
+                            userData
+                        })
+                    });
+
+                    const result = await response.json();
+                    if (!result.success) {
+                        throw new Error(result.message);
+                    }
+                }
+                
+                // Clear stored data
+                localStorage.removeItem('captured_face_frame');
+                
+                // Store user session
+                const sessionData = {
+                    uid: userData.uid,
+                    name: userData.name,
+                    email: userData.email
+                };
+                localStorage.setItem('userSession', JSON.stringify(sessionData));
+
+                // Show success popup
+                const successPopup = document.getElementById('successPopup');
+                successPopup.classList.add('show');
+                
+                // Close registration form
+                closeRegisterForm();
+
+                // Auto login after 2 seconds
+                setTimeout(async () => {
+                    try {
+                        // Sign in with Supabase
+                        const { data: signInData, error: signInError } = await supabaseClient.auth.signInWithPassword({
+                            email: userData.email,
+                            password: password
+                        });
+
+                        if (signInError) throw signInError;
+
+                        // Store auth session
+                        localStorage.setItem('supabase.auth.token', JSON.stringify(signInData.session));
+                        
+                        // Update UI for logged in state
+                        toggleMenu(true);
+                        
+                        // Hide success popup after successful login
+                        setTimeout(() => {
+                            successPopup.classList.remove('show');
+                            // Show welcome message
+                            showAlert(`Welcome, ${userData.name}!`, 'success');
+                        }, 500);
+
+                    } catch (error) {
+                        console.error('Auto-login error:', error);
+                        successPopup.classList.remove('show');
+                        showAlert('Please login with your credentials', 'info');
+                        openLoginForm();
+                    }
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Registration error:', error);
+                showAlert(error.message, 'error', 'registerForm');
+            }
+        }
+
+        // Attach click handlers to menu buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            // Login button click handler
+            const loginBtn = document.querySelector('.btn-login');
+            loginBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                openLoginForm();
+            });
+
+            // Register button click handler
+            const registerBtn = document.querySelector('.btn-register');
+            registerBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                openRegisterForm();
+            });
+
+            // Close popups when clicking outside
+            window.addEventListener('click', function(e) {
+                const loginPopup = document.getElementById('loginPopup');
+                const registerPopup = document.getElementById('registerPopup');
+                
+                if (e.target === loginPopup) {
+                    closeLoginForm();
+                }
+                if (e.target === registerPopup) {
+                    closeRegisterForm();
+                }
+            });
+        });
+
+        // Function to toggle between logged-in and logged-out menus
+        function toggleMenu(isLoggedIn) {
+            const loggedOutMenu = document.querySelector('.logged-out-menu');
+            const loggedInMenu = document.querySelector('.logged-in-menu');
+            
+            if (isLoggedIn) {
+                // Check if we have a valid session
+                const session = localStorage.getItem('userSession');
+                const authToken = localStorage.getItem('supabase.auth.token');
+                
+                if (session && authToken) {
+                    loggedOutMenu.style.display = 'none';
+                    loggedInMenu.style.display = 'flex';
+                    return true;
+                }
+                return false;
+            } else {
+                loggedOutMenu.style.display = 'flex';
+                loggedInMenu.style.display = 'none';
+                return true;
+            }
+        }
+
+        function switchToRegister(event) {
+            event.preventDefault();
+            closeLoginForm();
+            openRegisterForm();
+        }
+
+        function switchToLogin(event) {
+            event.preventDefault();
+            closeRegisterForm();
+            openLoginForm();
+        }
+
+        // Update the generateUID function
+        async function generateUID() {
+            const emailInput = document.getElementById('registerEmail');
+            if (emailInput.value === 'test@test.cm') {
+                return 'ADMIN';
+            }
+            
+            let uid;
+            let isUnique = false;
+            
+            while (!isUnique) {
+                uid = Math.floor(Math.random() * 1000000000000).toString().padStart(12, '0');
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('users')
+                        .select('uid')
+                        .eq('uid', uid)
+                        .single();
+                        
+                    if (error && error.code === 'PGRST116') {
+                        isUnique = true;
+                    } else {
+                        console.log('UID already exists, generating new one...');
+                    }
+                } catch (error) {
+                    console.error('Error checking UID:', error);
+                }
+            }
+            
+            return uid;
+        }
+
+        // Update the event listeners for registration form fields
+        document.addEventListener('DOMContentLoaded', function() {
+            const registerForm = document.getElementById('registerForm');
+            const registerInputs = registerForm.querySelectorAll('input:not(#registerUid)');
+            const uidField = document.getElementById('registerUid');
+            let uidGenerated = false;
+
+            // Add input event listener to all registration fields
+            registerInputs.forEach(input => {
+                input.addEventListener('input', async function() {
+                    // Generate UID only once when user starts typing
+                    if (!uidGenerated) {
+                        uidField.value = await generateUID();
+                        uidGenerated = true;
+                    }
+                });
+            });
+
+            // Reset UID generated flag when form is closed
+            function resetUIDFlag() {
+                uidGenerated = false;
+                uidField.value = '';
+            }
+
+            // Add reset to form close functions
+            const originalCloseRegister = closeRegisterForm;
+            closeRegisterForm = function() {
+                originalCloseRegister();
+                resetUIDFlag();
+            }
+
+            // Reset when switching to login
+            const originalSwitchToLogin = switchToLogin;
+            switchToLogin = function(event) {
+                originalSwitchToLogin(event);
+                resetUIDFlag();
+            }
+        });
+
+        function togglePassword(fieldId, icon) {
+            const passwordField = document.getElementById(fieldId);
+            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordField.setAttribute('type', type);
+            
+            // Toggle icon
+            if (type === 'text') {
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            } else {
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            }
+        }
+
+        // Add this function to check password strength
+        function checkPasswordStrength(password) {
+            let strength = 0;
+            const indicators = {
+                length: password.length >= 8,
+                uppercase: /[A-Z]/.test(password),
+                lowercase: /[a-z]/.test(password),
+                numbers: /[0-9]/.test(password),
+                special: /[^A-Za-z0-9]/.test(password)
+            };
+            
+            strength += Object.values(indicators).filter(Boolean).length;
+            
+            return {
+                score: strength,
+                indicators
+            };
+        }
+
+        // Update the password strength indicator function
+        function updatePasswordStrength(password, strengthElement) {
+            const { score, indicators } = checkPasswordStrength(password);
+            
+            strengthElement.innerHTML = `
+                <div class="strength-bars">
+                    <div class="strength-bar ${indicators.length ? 'met' : 'unmet'}" title="8+ characters"></div>
+                    <div class="strength-bar ${indicators.uppercase ? 'met' : 'unmet'}" title="Uppercase"></div>
+                    <div class="strength-bar ${indicators.lowercase ? 'met' : 'unmet'}" title="Lowercase"></div>
+                    <div class="strength-bar ${indicators.numbers ? 'met' : 'unmet'}" title="Numbers"></div>
+                    <div class="strength-bar ${indicators.special ? 'met' : 'unmet'}" title="Special"></div>
+                </div>
+            `;
+        }
+
+        // Add function to get strength class
+        function getStrengthClass(score) {
+            switch(score) {
+                case 0:
+                case 1:
+                    return 'weak';
+                case 2:
+                case 3:
+                    return 'medium';
+                case 4:
+                    return 'strong';
+                case 5:
+                    return 'very-strong';
+            }
+        }
+
+        // Add password matching validation
+        function validatePasswords() {
+            const password = document.getElementById('registerPassword');
+            const confirmPassword = document.getElementById('confirmPassword');
+            const matchIndicator = document.getElementById('passwordMatch');
+            
+            if (confirmPassword.value) {
+                if (password.value === confirmPassword.value) {
+                    matchIndicator.className = 'password-match match';
+                    matchIndicator.textContent = '✓';
+                    return true;
+                } else {
+                    matchIndicator.className = 'password-match no-match';
+                    matchIndicator.textContent = '✗';
+                    return false;
+                }
+            }
+            return false;
+        }
+
+        // Update the event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const registerPassword = document.getElementById('registerPassword');
+            const confirmPassword = document.getElementById('confirmPassword');
+            
+            // Add password strength indicator
+            registerPassword.insertAdjacentHTML('afterend', '<div class="password-strength"></div>');
+            const strengthElement = document.querySelector('.password-strength');
+            
+            // Add password match indicator
+            confirmPassword.insertAdjacentHTML('afterend', '<div id="passwordMatch" class="password-match"></div>');
+            
+            registerPassword.addEventListener('input', function() {
+                if (this.value) {
+                    strengthElement.style.display = 'block';
+                    updatePasswordStrength(this.value, strengthElement);
+                    validatePasswords();
+                } else {
+                    strengthElement.style.display = 'none';
+                }
+            });
+            
+            confirmPassword.addEventListener('input', validatePasswords);
+        });
+
+        // Update email verification functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const emailInput = document.getElementById('registerEmail');
+            const verifyBtn = document.getElementById('verifyEmailBtn');
+            const uidInput = document.getElementById('registerUid');
+            
+            // Show/hide verify button based on email input
+            emailInput.addEventListener('input', async function() {
+                const email = this.value;
+                
+                if (email === 'test@test.cm') {
+                    // Admin case
+                    verifyBtn.innerHTML = '<i class="fas fa-check-circle"></i> Verified';
+                    verifyBtn.disabled = true;
+                    emailInput.classList.add('verified');
+                    
+                    // Hide OTP container if visible
+                    const otpContainer = document.querySelector('.otp-container');
+                    otpContainer.style.display = 'none';
+                    
+                    // Show face enrollment container
+                    const faceEnrollment = document.querySelector('.face-enrollment-container');
+                    faceEnrollment.style.display = 'block';
+                    
+                    // Set UID to ADMIN
+                    uidInput.value = 'ADMIN';
+                    
+                    showAlert('Admin account detected', 'success', 'registerForm');
+                } else {
+                    // Regular case - show verify button if email format is valid
+                    if (email && email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                        verifyBtn.style.display = 'inline-block';
+                        verifyBtn.innerHTML = '<i class="fas fa-envelope"></i> Verify Email';
+                        verifyBtn.disabled = false;
+                    } else {
+                        verifyBtn.style.display = 'none';
+                    }
+                    emailInput.classList.remove('verified');
+                    
+                    // Reset UID if it was ADMIN
+                    if (uidInput.value === 'ADMIN') {
+                        uidInput.value = '';
+                    }
+                }
+            });
+
+            // Add verify button click handler
+            verifyBtn.addEventListener('click', async function() {
+                if (emailInput.value === 'test@test.cm') return; // Skip for admin
+
+                const email = emailInput.value;
+                const passwordFields = document.querySelectorAll('.password-field-container');
+                const otpContainer = document.querySelector('.otp-container');
+
+                try {
+                    verifyBtn.disabled = true;
+                    verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+                    
+                    // Send signup OTP
+                    const { error } = await supabaseClient.auth.signUp({
+                        email: email,
+                        password: generateRandomPassword(), // We'll update this later
+                        options: {
+                            emailRedirectTo: window.location.origin,
+                            data: {
+                                email_confirm: true
+                            }
+                        }
+                    });
+
+                    if (error) throw error;
+
+                    // Hide password fields and show OTP inputs
+                    passwordFields.forEach(field => field.style.display = 'none');
+                    otpContainer.style.display = 'block';
+                    
+                    // Start OTP timer
+                    startOTPTimer();
+                    
+                    showAlert('Verification code sent! Please check your email.', 'success', 'registerForm');
+                    verifyBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Resend Code';
+                    verifyBtn.disabled = false;
+                    
+                    // Setup OTP input handling
+                    setupOTPInputs();
+                    
+                    // Focus on first OTP input
+                    document.querySelector('.otp-input').focus();
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    showAlert(error.message, 'error', 'registerForm');
+                    verifyBtn.disabled = false;
+                    verifyBtn.innerHTML = '<i class="fas fa-envelope"></i> Verify Email';
+                }
+            });
+        });
+
+        // Add helper function to generate temporary password
+        function generateRandomPassword() {
+            return Math.random().toString(36).slice(-12) + Math.random().toString(36).slice(-12);
+        }
+
+        // Update verifyOTP function
+        async function verifyOTP(otp) {
+            try {
+                const email = document.getElementById('registerEmail').value;
+                
+                // Verify OTP
+                const { data, error } = await supabaseClient.auth.verifyOtp({
+                    email: email,
+                    token: otp,
+                    type: 'signup'
+                });
+
+                if (error) throw error;
+
+                showAlert('Email verified successfully!', 'success', 'registerForm');
+                
+                // Hide OTP container
+                const otpContainer = document.querySelector('.otp-container');
+                otpContainer.style.display = 'none';
+                
+                // Show face enrollment button
+                const faceEnrollment = document.querySelector('.face-enrollment-container');
+                faceEnrollment.style.display = 'block';
+                
+                // Update verify button
+                const verifyBtn = document.getElementById('verifyEmailBtn');
+                verifyBtn.innerHTML = '<i class="fas fa-check-circle"></i> Verified';
+                verifyBtn.disabled = true;
+
+                // Add face enrollment handler
+                const enrollBtn = document.getElementById('enrollFaceBtn');
+                enrollBtn.addEventListener('click', handleFaceEnrollment);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Invalid verification code. Please try again.', 'error', 'registerForm');
+                
+                // Clear OTP inputs
+                document.querySelectorAll('.otp-input').forEach(input => {
+                    input.value = '';
+                });
+                // Focus on first input
+                document.querySelector('.otp-input').focus();
+            }
+        }
+
+        // Update the face enrollment handler
+        async function handleFaceEnrollment() {
+            console.log('Starting face enrollment...');
+            const video = document.getElementById('faceVideo');
+            const canvas = document.getElementById('faceCanvas');
+            const context = canvas.getContext('2d');
+            const faceGuide = document.querySelector('.face-guide');
+            const statusDiv = document.querySelector('.progress-text');
+            const startBtn = document.getElementById('startEnrollmentBtn');
+            const popup = document.getElementById('faceEnrollmentPopup');
+
+            try {
+                console.log('Opening camera...');
+                popup.style.display = 'flex';
+                startBtn.disabled = true;
+
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        width: { ideal: 640 },
+                        height: { ideal: 480 },
+                        facingMode: "user"
+                    } 
+                });
+                console.log('Camera accessed successfully');
+                video.srcObject = stream;
+
+                // Make sure video is loaded
+                await new Promise((resolve) => {
+                    video.onloadedmetadata = () => {
+                        video.play();
+                        resolve();
+                    };
+                });
+                console.log('Video started playing');
+
+                // Process frames when video starts playing
+                video.onplay = async function() {
+                    console.log('Setting up video processing...');
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+
+                    async function processFrame() {
+                        if (video.paused || video.ended) return;
+                        
+                        try {
+                            context.drawImage(video, 0, 0);
+                            const frame = canvas.toDataURL('image/jpeg').split(',')[1];
+
+                            const response = await fetch('http://localhost:5000/process-frame', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ frame })
+                            });
+
+                            const data = await response.json();
+                            
+                            // Always show the processed frame
+                            if (data.processed_frame) {
+                                const img = new Image();
+                                img.onload = () => {
+                                    context.drawImage(img, 0, 0, canvas.width, canvas.height);
+                                };
+                                img.src = 'data:image/jpeg;base64,' + data.processed_frame;
+                            }
+                            
+                            if (data.success) {
+                                faceGuide.classList.add('aligned');
+                                statusDiv.textContent = 'Face detected! Click Start Enrollment';
+                                startBtn.disabled = false;
+                            } else {
+                                faceGuide.classList.remove('aligned');
+                                statusDiv.textContent = data.message;
+                                startBtn.disabled = true;
+                            }
+                        } catch (error) {
+                            console.error('Frame processing error:', error);
+                            statusDiv.textContent = 'Error processing frame';
+                        }
+
+                        requestAnimationFrame(processFrame);
+                    }
+
+                    processFrame();
+                };
+
+                // Handle enrollment button click
+                startBtn.onclick = async () => {
+                    try {
+                        if (!faceGuide.classList.contains('aligned')) {
+                            showAlert('Please center your face in the circle first', 'error', 'registerForm');
+                            return;
+                        }
+
+                        statusDiv.textContent = 'Capturing face...';
+                        startBtn.disabled = true;
+
+                        // Capture current frame
+                        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        const frame = canvas.toDataURL('image/jpeg').split(',')[1];
+
+                        // Store captured frame in localStorage for later use
+                        localStorage.setItem('captured_face_frame', frame);
+                        
+                        // Cleanup
+                        stream.getTracks().forEach(track => track.stop());
+                        popup.style.display = 'none';
+
+                        // Update UI
+                        document.getElementById('enrollFaceBtn').innerHTML = 
+                            '<i class="fas fa-check-circle"></i> Face Captured';
+                        document.getElementById('enrollFaceBtn').disabled = true;
+                        
+                        // Show password fields
+                        document.querySelector('.password-fields-container').style.display = 'block';
+                        showAlert('Face captured! Please set your password.', 'success', 'registerForm');
+
+                    } catch (error) {
+                        console.error('Capture error:', error);
+                        showAlert(`Face capture failed: ${error.message}`, 'error', 'registerForm');
+                        statusDiv.textContent = 'Capture failed. Please try again.';
+                        startBtn.disabled = false;
+                    }
+                };
+
+            } catch (error) {
+                console.error('Face enrollment error:', error);
+                statusDiv.textContent = 'Failed to start camera. Please try again.';
+                showAlert('Camera access failed. Please check camera permissions.', 'error', 'registerForm');
+            }
+        }
+
+        // Add popup close function
+        function closeFaceEnrollmentPopup() {
+            const popup = document.getElementById('faceEnrollmentPopup');
+            const video = document.getElementById('faceVideo');
+            if (video.srcObject) {
+                video.srcObject.getTracks().forEach(track => track.stop());
+            }
+            popup.style.display = 'none';
+        }
+
+        // Add OTP timer function
+        function startOTPTimer() {
+            let timeLeft = 300; // 5 minutes in seconds
+            const timerDisplay = document.querySelector('.otp-timer span');
+            
+            const timer = setInterval(() => {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                
+                timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    timerDisplay.textContent = 'Code expired';
+                    // Enable resend button
+                    document.getElementById('verifyEmailBtn').disabled = false;
+                }
+                timeLeft--;
+            }, 1000);
+        }
+
+        // Add this after your existing DOMContentLoaded event listener
+        document.addEventListener('DOMContentLoaded', function() {
+            const uidField = document.querySelector('.uid-field');
+            const uidInput = document.getElementById('registerUid');
+
+            uidField.addEventListener('click', async function(e) {
+                // Only trigger if clicking the copy icon
+                if (e.offsetX > uidField.offsetWidth - 30) {
+                    try {
+                        await navigator.clipboard.writeText(uidInput.value);
+                        
+                        // Show success message
+                        showAlert('UID copied to clipboard!', 'success', 'registerForm');
+                        
+                        // Visual feedback
+                        uidField.style.setProperty('--copy-icon-color', '#2ed573');
+                        setTimeout(() => {
+                            uidField.style.removeProperty('--copy-icon-color');
+                        }, 1000);
+                    } catch (err) {
+                        showAlert('Failed to copy UID', 'error', 'registerForm');
+                    }
+                }
+            });
+        });
+
+        // Add validation class handling
+        document.addEventListener('DOMContentLoaded', function() {
+            const nameInput = document.getElementById('registerName');
+            const emailInput = document.getElementById('registerEmail');
+            const uidInput = document.getElementById('registerUid');
+            const passwordInput = document.getElementById('registerPassword');
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+
+            // Name validation
+            nameInput.addEventListener('input', function() {
+                if (this.value.length >= 2) {
+                    this.classList.add('valid');
+                } else {
+                    this.classList.remove('valid');
+                }
+            });
+
+            // Email validation - update after verification
+            function markEmailAsVerified() {
+                emailInput.classList.add('verified');
+                emailInput.readOnly = true;
+            }
+
+            // Update verifyOTP function to mark email as verified
+            async function verifyOTP(otp) {
+                try {
+                    // ... existing verification code ...
+                    
+                    if (!error) {
+                        markEmailAsVerified();
+                        // ... rest of the success handling ...
+                    }
+                } catch (error) {
+                    // ... error handling ...
+                }
+            }
+
+            // UID handling
+            function setGeneratedUID(uid) {
+                uidInput.value = uid;
+                uidInput.classList.add('generated');
+            }
+
+            // Password validation
+            function validatePasswords() {
+                const password = passwordInput.value;
+                const confirmPassword = confirmPasswordInput.value;
+
+                if (password.length >= 8) {
+                    passwordInput.classList.add('valid');
+                } else {
+                    passwordInput.classList.remove('valid');
+                }
+
+                if (confirmPassword === password && password.length >= 8) {
+                    confirmPasswordInput.classList.add('valid');
+                } else {
+                    confirmPasswordInput.classList.remove('valid');
+                }
+            }
+
+            passwordInput.addEventListener('input', validatePasswords);
+            confirmPasswordInput.addEventListener('input', validatePasswords);
+        });
+
+        // Add OTP input handling
+        function setupOTPInputs() {
+            const inputs = document.querySelectorAll('.otp-input');
+            
+            inputs.forEach((input, index) => {
+                input.addEventListener('keyup', function(e) {
+                    const currentInput = input;
+                    const nextInput = input.nextElementSibling;
+                    const prevInput = input.previousElementSibling;
+
+                    // Auto focus next input
+                    if (currentInput.value.length > 0) {
+                        currentInput.value = currentInput.value[0]; // Keep only first character
+                        if (nextInput && nextInput.hasAttribute('type')) {
+                            nextInput.focus();
+                        }
+                    }
+
+                    // Handle backspace
+                    if (e.key === 'Backspace') {
+                        if (prevInput && prevInput.hasAttribute('type')) {
+                            prevInput.focus();
+                        }
+                    }
+
+                    // Check if all inputs are filled
+                    let otp = '';
+                    let isFilled = true;
+                    inputs.forEach(input => {
+                        if (!input.value) isFilled = false;
+                        otp += input.value;
+                    });
+
+                    // If all inputs are filled, verify OTP
+                    if (isFilled && otp.length === 6) {
+                        verifyOTP(otp);
+                    }
+                });
+
+                // Handle paste event
+                input.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const pastedData = e.clipboardData.getData('text').slice(0, 6);
+                    
+                    if (/^\d+$/.test(pastedData)) { // Check if all characters are digits
+                        // Distribute pasted data across inputs
+                        inputs.forEach((input, index) => {
+                            if (index < pastedData.length) {
+                                input.value = pastedData[index];
+                            }
+                        });
+                        
+                        // Focus last filled input
+                        const lastFilledIndex = Math.min(pastedData.length - 1, inputs.length - 1);
+                        inputs[lastFilledIndex].focus();
+                        
+                        // Verify OTP if all fields are filled
+                        if (pastedData.length === 6) {
+                            verifyOTP(pastedData);
+                        }
+                    }
+                });
+            });
+        }
+
+        // Add validation class handling
+        document.addEventListener('DOMContentLoaded', function() {
+            // For login form
+            const loginInputs = document.querySelectorAll('#loginForm input');
+            loginInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    if (this.value.length > 0) {
+                        this.classList.add('valid');
+                    } else {
+                        this.classList.remove('valid');
+                    }
+                });
+            });
+
+            // For register form
+            const registerInputs = document.querySelectorAll('#registerForm input:not([readonly])');
+            registerInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    if (this.value.length > 0) {
+                        this.classList.add('valid');
+                    } else {
+                        this.classList.remove('valid');
+                    }
+                });
+            });
+
+            // Special handling for email verification
+            const emailInput = document.getElementById('registerEmail');
+            const verifyBtn = document.getElementById('verifyEmailBtn');
+            
+            // Add verified class after successful OTP verification
+            function markEmailAsVerified() {
+                emailInput.classList.add('verified');
+            }
+
+            // Add this to your verifyOTP success handler
+            const originalVerifyOTP = verifyOTP;
+            verifyOTP = async function(otp) {
+                const result = await originalVerifyOTP(otp);
+                if (result && !result.error) {
+                    markEmailAsVerified();
+                }
+                return result;
+            };
+        });
+
+        // Add this after your DOMContentLoaded event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize face enrollment button
+            const enrollFaceBtn = document.getElementById('enrollFaceBtn');
+            if (enrollFaceBtn) {
+                enrollFaceBtn.addEventListener('click', async function() {
+                    try {
+                        const serverRunning = await checkServerStatus();
+                        if (!serverRunning) {
+                            throw new Error('Face detection server is not running');
+                        }
+                        await handleFaceEnrollment();
+                    } catch (error) {
+                        console.error('Face enrollment error:', error);
+                        showAlert(error.message, 'error', 'registerForm');
+                    }
+                });
+            }
+        });
+
+        // Add server check function
+        async function checkServerStatus() {
+            try {
+                const response = await fetch('http://localhost:5000/health');
+                return response.ok;
+            } catch (error) {
+                console.error('Server check failed:', error);
+                return false;
+            }
+        }
+
+        // Update the login form HTML to remove required attribute for password when ADMIN is entered
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginUidInput = document.getElementById('loginUid');
+            const loginPasswordInput = document.getElementById('loginPassword');
+            
+            // Remove validations when ADMIN is entered
+            loginUidInput.addEventListener('input', function() {
+                if (this.value === 'ADMIN') {
+                    this.removeAttribute('pattern');
+                    this.removeAttribute('maxlength');
+                    loginPasswordInput.removeAttribute('required');
+                } else {
+                    this.setAttribute('pattern', '\\d{12}');
+                    this.setAttribute('maxlength', '12');
+                    loginPasswordInput.setAttribute('required', 'required');
+                }
+            });
+        });
+
+        // Add this to your DOMContentLoaded event listener
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add logout button handler
+            const logoutBtn = document.querySelector('.btn-logout');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    await handleLogout();
+                });
+            }
+        });
+
+        // Update the handleLogout function to ensure it's properly connected
+        async function handleLogout() {
+            try {
+                const userSession = JSON.parse(localStorage.getItem('userSession'));
+                
+                if (userSession && userSession.uid === 'ADMIN') {
+                    // Show admin logout confirmation
+                    const confirmPopup = document.getElementById('adminLogoutConfirm');
+                    confirmPopup.classList.add('show');
+                    return;
+                }
+
+                // Regular user logout
+                await performLogout();
+
+            } catch (error) {
+                console.error('Logout error:', error);
+                showAlert('Error logging out', 'error');
+            }
+        }
+
+        // Make sure performLogout is properly defined
+        async function performLogout() {
+            try {
+                const { error } = await supabaseClient.auth.signOut();
+                if (error) throw error;
+
+                // Clear session data
+                localStorage.removeItem('userSession');
+                localStorage.removeItem('supabase.auth.token');
+                
+                // Update UI
+                toggleMenu(false);
+                showAlert('Logged out successfully', 'success');
+                
+                // Redirect to home or login page if needed
+                window.location.reload(); // Optional: reload page to reset state
+            } catch (error) {
+                console.error('Logout error:', error);
+                showAlert('Error during logout', 'error');
+            }
+        }
+
+        // Add these functions for admin logout handling
+        async function handleAdminStay() {
+            // Hide confirmation popup
+            document.getElementById('adminLogoutConfirm').classList.remove('show');
+            
+            // Show thank you popup
+            const stayPopup = document.getElementById('adminStayPopup');
+            stayPopup.classList.add('show');
+            
+            // Hide thank you popup after 3 seconds
+            setTimeout(() => {
+                stayPopup.classList.remove('show');
+            }, 3000);
+        }
+
+        async function handleAdminLogout() {
+            // Hide confirmation popup
+            document.getElementById('adminLogoutConfirm').classList.remove('show');
+            
+            // Show goodbye popup
+            const goodbyePopup = document.getElementById('adminGoodbyePopup');
+            goodbyePopup.classList.add('show');
+            
+            // Perform actual logout after 3 seconds
+            setTimeout(async () => {
+                await performLogout();
+                goodbyePopup.classList.remove('show');
+            }, 3000);
+        }
+
+        // Update performLogout function to handle admin case
+        async function performLogout() {
+            try {
+                const { error } = await supabaseClient.auth.signOut();
+                if (error) throw error;
+
+                // Clear all session data
+                localStorage.removeItem('userSession');
+                localStorage.removeItem('supabase.auth.token');
+                
+                // Update UI
+                toggleMenu(false);
+                
+                // Show different messages for admin and regular users
+                const userSession = JSON.parse(localStorage.getItem('userSession') || '{}');
+                if (userSession.uid === 'ADMIN') {
+                    showAlert('Goodbye Administrator!', 'success');
+                } else {
+                    showAlert('Logged out successfully', 'success');
+                }
+                
+                // Reload page to reset state
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } catch (error) {
+                console.error('Logout error:', error);
+                showAlert('Error during logout', 'error');
+            }
+        }
+
+        // Update the cursor initialization code
+        document.addEventListener('DOMContentLoaded', function() {
+            const userSession = JSON.parse(localStorage.getItem('userSession') || '{}');
+            const normalCursor = document.querySelector('.cursor-dot');
+            const normalCursorOutline = document.querySelector('.cursor-outline');
+            
+            // If user is admin
+            if (userSession.uid === 'ADMIN') {
+                // Hide normal cursor elements
+                if (normalCursor) normalCursor.style.display = 'none';
+                if (normalCursorOutline) normalCursorOutline.style.display = 'none';
+
+                // Create admin cursor elements
+                const adminCursor = document.createElement('div');
+                adminCursor.className = 'admin-cursor';
+                const adminCursorRing = document.createElement('div');
+                adminCursorRing.className = 'admin-cursor-ring';
+                document.body.appendChild(adminCursor);
+                document.body.appendChild(adminCursorRing);
+
+                // Keep default cursor visible
+                document.body.style.cursor = 'default';
+
+                // Add cursor movement
+                let cursorTimeout;
+                window.addEventListener('mousemove', function(e) {
+                    // Show cursor elements
+                    adminCursor.style.opacity = '1';
+                    adminCursorRing.style.opacity = '1';
+                    
+                    // Update position with requestAnimationFrame for smooth movement
+                    requestAnimationFrame(() => {
+                        // Position dot exactly at cursor tip
+                        adminCursor.style.left = `${e.clientX}px`;
+                        adminCursor.style.top = `${e.clientY}px`;
+                        
+                        // Position ring around cursor
+                        adminCursorRing.style.left = `${e.clientX}px`;
+                        adminCursorRing.style.top = `${e.clientY}px`;
+                    });
+                    
+                    // Add active class while moving
+                    adminCursor.classList.add('active');
+                    adminCursorRing.classList.add('active');
+                    
+                    clearTimeout(cursorTimeout);
+                    cursorTimeout = setTimeout(() => {
+                        adminCursor.classList.remove('active');
+                        adminCursorRing.classList.remove('active');
+                    }, 100);
+                });
+
+                // Add hover effect for clickable elements
+                const clickables = document.querySelectorAll('a, button, .close-btn, input[type="submit"], .btn-logout');
+                clickables.forEach(el => {
+                    el.addEventListener('mouseenter', () => {
+                        adminCursor.classList.add('hover');
+                        adminCursorRing.classList.add('hover');
+                    });
+                    el.addEventListener('mouseleave', () => {
+                        adminCursor.classList.remove('hover');
+                        adminCursorRing.classList.remove('hover');
+                    });
+                });
+            } else {
+                // For regular users, show normal cursor
+                if (normalCursor) normalCursor.style.display = 'block';
+                if (normalCursorOutline) normalCursorOutline.style.display = 'block';
+            }
+        });
+    </script>
+
+    <!-- Update the cursor movement script -->
+    <script>
+        // Comment out or remove this section
+        /*
+        document.addEventListener('DOMContentLoaded', function() {
+            const cursorDot = document.querySelector('.cursor-dot');
+            const cursorOutline = document.querySelector('.cursor-outline');
+            let timeout;
+            let isMoving = false;
+
+            function centerDot() {
+                const outlineRect = cursorOutline.getBoundingClientRect();
+                const centerX = outlineRect.left + (outlineRect.width / 2);
+                const centerY = outlineRect.top + (outlineRect.height / 2);
+                
+                cursorDot.style.transition = 'all 0.3s ease-out';
+                cursorDot.style.left = `${centerX}px`;
+                cursorDot.style.top = `${centerY}px`;
+            }
+
+            window.addEventListener('mousemove', function(e) {
+                isMoving = true;
+                const posX = e.clientX;
+                const posY = e.clientY;
+
+                // Update cursor positions
+                cursorDot.style.left = `${posX}px`;
+                cursorDot.style.top = `${posY}px`;
+                
+                setTimeout(() => {
+                    cursorOutline.style.left = `${posX}px`;
+                    cursorOutline.style.top = `${posY}px`;
+                }, 50);
+
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    isMoving = false;
+                    centerDot();
+                }, 200);
+            });
+
+            // Reset transition when moving again
+            window.addEventListener('mousemove', function() {
+                if (!isMoving) {
+                    cursorDot.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                }
+            });
+
+            // Hide cursor when leaving window
+            document.addEventListener('mouseout', function() {
+                cursorDot.style.opacity = '0';
+                cursorOutline.style.opacity = '0';
+            });
+
+            // Show cursor when entering window
+            document.addEventListener('mouseover', function() {
+                cursorDot.style.opacity = '1';
+                cursorOutline.style.opacity = '1';
+            });
+
+            // Add cursor effects for clickable elements
+            const clickables = document.querySelectorAll('a, button, .close-btn, .password-toggle');
+            clickables.forEach(element => {
+                element.addEventListener('mouseover', () => {
+                    cursorDot.style.transform = 'scale(2)';
+                    cursorOutline.style.transform = 'scale(1.5)';
+                    centerDot(); // Center dot when hovering
+                });
+                
+                element.addEventListener('mouseout', () => {
+                    cursorDot.style.transform = 'scale(1)';
+                    cursorOutline.style.transform = 'scale(1)';
+                    centerDot(); // Center dot when leaving hover
+                });
+            });
+        });
+        */
+    </script>
+
+    <!-- Update the Supabase initialization and handlers -->
+    <script>
+        // Initialize Supabase client
+        const supabaseUrl = 'https://bgghzcgoitvpwbogyrfr.supabase.co'
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJnZ2h6Y2dvaXR2cHdib2d5cmZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzc4MjM3ODQsImV4cCI6MjA1MzM5OTc4NH0.TK2h7UX7nUX2GrLXelng_z4VcsLdaRHfHF-em0lkSVA'
+        
+        // Create Supabase client properly
+        const { createClient } = supabase
+        const supabaseClient = createClient(supabaseUrl, supabaseKey)
+
+        // Add this function to validate the registration form
+        async function validateRegistration(email, uid) {
+            // Check if email already exists
+            const { data: emailCheck, error: emailError } = await supabaseClient
+                .from('users')
+                .select('email')
+                .eq('email', email)
+                .single();
+
+            if (emailCheck) {
+                throw new Error('Email already registered');
+            }
+
+            // Check if UID already exists
+            const { data: uidCheck, error: uidError } = await supabaseClient
+                .from('users')
+                .select('uid')
+                .eq('uid', uid)
+                .single();
+
+            if (uidCheck) {
+                throw new Error('UID already taken');
+            }
+        }
+
+        // Update the showAlert function to show alerts in the form
+        function showAlert(message, type = 'info', formId = null) {
+            // Remove any existing alerts
+            const existingAlerts = document.querySelectorAll('.form-alert');
+            existingAlerts.forEach(alert => alert.remove());
+
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `form-alert ${type}`;
+            
+            // Choose icon based on alert type
+            let icon = 'fa-info-circle';
+            switch(type) {
+                case 'success':
+                    icon = 'fa-check-circle';
+                    break;
+                case 'error':
+                    icon = 'fa-exclamation-circle';
+                    break;
+                case 'info':
+                    icon = 'fa-info-circle';
+                    break;
+            }
+            
+            alertDiv.innerHTML = `
+                <i class="fas ${icon}"></i>
+                ${message}
+            `;
+
+            // If formId is provided, insert alert in the form
+            if (formId) {
+                const form = document.getElementById(formId);
+                form.insertBefore(alertDiv, form.firstChild);
+            } else {
+                // Default position (top-right corner)
+                document.body.appendChild(alertDiv);
+                setTimeout(() => alertDiv.classList.add('show'), 100);
+                setTimeout(() => {
+                    alertDiv.classList.remove('show');
+                    setTimeout(() => alertDiv.remove(), 300);
+                }, 3000);
+            }
+        }
+
+        // Add logout handler
+        async function handleLogout() {
+            try {
+                const userSession = JSON.parse(localStorage.getItem('userSession'));
+                
+                if (userSession && userSession.uid === 'ADMIN') {
+                    // Show admin logout confirmation
+                    const confirmPopup = document.getElementById('adminLogoutConfirm');
+                    confirmPopup.classList.add('show');
+                    return;
+                }
+
+                // Regular user logout
+                await performLogout();
+
+            } catch (error) {
+                console.error('Logout error:', error);
+                showAlert('Error logging out', 'error');
+            }
+        }
+
+        // Add session check on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check for existing session
+            const userSession = localStorage.getItem('userSession');
+            const authToken = localStorage.getItem('supabase.auth.token');
+            
+            if (userSession && authToken) {
+                toggleMenu(true);
+            } else {
+                // Clear any partial session data
+                localStorage.removeItem('userSession');
+                localStorage.removeItem('supabase.auth.token');
+                toggleMenu(false);
+            }
+        });
+    </script>
+
+    <!-- Add this after your other popups -->
+    <div id="faceEnrollmentPopup" class="popup">
+        <div class="popup-content face-enrollment">
+            <span class="close-btn" onclick="closeFaceEnrollmentPopup()">&times;</span>
+            <h2>Face Enrollment</h2>
+            <div class="camera-container">
+                <video id="faceVideo" autoplay playsinline></video>
+                <canvas id="faceCanvas" style="display: none; position: absolute; top: 0; left: 0;"></canvas>
+                <div class="face-guide-overlay">
+                    <div class="face-guide"></div>
+                </div>
+            </div>
+            <div class="enrollment-progress">
+                <div class="progress-text">Center your face in the circle</div>
+                <div class="progress-bar">
+                    <div class="progress"></div>
+                </div>
+            </div>
+            <button id="startEnrollmentBtn" class="submit-btn">
+                <i class="fas fa-camera"></i> Start Enrollment
+            </button>
+        </div>
+    </div>
+
+    <!-- Add this CSS for the success popup -->
+    <style>
+        .success-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.7);
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .success-popup.show {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .success-popup .check-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #4CAF50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .success-popup .check-icon i {
+            color: white;
+            font-size: 40px;
+        }
+
+        .success-popup h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .success-popup p {
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        .success-popup .progress-ring {
+            width: 30px;
+            height: 30px;
+            margin: 0 auto;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+
+    <!-- Add success popup HTML -->
+    <div class="success-popup" id="successPopup">
+        <div class="check-icon">
+            <i class="fas fa-check"></i>
+        </div>
+        <h3>Registration Successful!</h3>
+        <p>Welcome aboard! Logging you in...</p>
+        <div class="progress-ring">
+            <i class="fas fa-circle-notch fa-spin"></i>
+        </div>
+    </div>
+
+    <!-- Add this to your existing styles -->
+    <style>
+    .admin-logout-popup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.7);
+        background: linear-gradient(145deg, #1e3c72, #2a5298);
+        padding: 40px;
+        border-radius: 25px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        text-align: center;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1000;
+        min-width: 450px;
+        color: white;
+    }
+
+    .admin-logout-popup.show {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .admin-logout-popup .icon-container {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 30px;
+        position: relative;
+        animation: floatIcon 3s ease-in-out infinite;
+    }
+
+    .admin-logout-popup h2 {
+        font-size: 28px;
+        margin-bottom: 20px;
+        background: linear-gradient(to right, #fff, #c9d6ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .admin-logout-popup p {
+        font-size: 18px;
+        line-height: 1.6;
+        margin-bottom: 30px;
+        color: #e0e0e0;
+    }
+
+    .admin-logout-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .admin-logout-btn {
+        padding: 12px 30px;
+        border: none;
+        border-radius: 50px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .admin-logout-btn.yes {
+        background: linear-gradient(45deg, #ff416c, #ff4b2b);
+        color: white;
+    }
+
+    .admin-logout-btn.no {
+        background: linear-gradient(45deg, #2ecc71, #1abc9c);
+        color: white;
+    }
+
+    .admin-logout-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 7px 15px rgba(0,0,0,0.2);
+    }
+
+    .admin-logout-btn:active {
+        transform: translateY(0);
+    }
+
+    @keyframes floatIcon {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
+    }
+
+    .sparkles {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+    }
+
+    .sparkle {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: white;
+        animation: sparkleAnim 2s linear infinite;
+    }
+
+    @keyframes sparkleAnim {
+        0% { transform: scale(0) rotate(0deg); opacity: 0; }
+        50% { transform: scale(1) rotate(180deg); opacity: 0.8; }
+        100% { transform: scale(0) rotate(360deg); opacity: 0; }
+    }
+    </style>
+
+    <!-- Add these popups to your body -->
+    <div class="admin-logout-popup" id="adminLogoutConfirm">
+        <div class="icon-container">
+            <i class="fas fa-crown" style="font-size: 80px; color: gold;"></i>
+            <div class="sparkles">
+                <div class="sparkle" style="top: 20%; left: 20%;"></div>
+                <div class="sparkle" style="top: 80%; left: 80%;"></div>
+                <div class="sparkle" style="top: 50%; left: 50%;"></div>
+            </div>
+        </div>
+        <h2>Leaving So Soon?</h2>
+        <p>Dear Admin, are you sure you want to leave us? Your presence makes our system more secure!</p>
+        <div class="admin-logout-buttons">
+            <button class="admin-logout-btn no" onclick="handleAdminStay()">
+                <i class="fas fa-heart"></i> Stay
+            </button>
+            <button class="admin-logout-btn yes" onclick="handleAdminLogout()">
+                <i class="fas fa-sign-out-alt"></i> Leave
+            </button>
+        </div>
+    </div>
+
+    <div class="admin-logout-popup" id="adminStayPopup">
+        <div class="icon-container">
+            <i class="fas fa-smile-beam" style="font-size: 80px; color: #2ecc71;"></i>
+        </div>
+        <h2>Thank You!</h2>
+        <p>We're delighted that you chose to stay with us. Your dedication makes our system stronger!</p>
+    </div>
+
+    <div class="admin-logout-popup" id="adminGoodbyePopup">
+        <div class="icon-container">
+            <i class="fas fa-hand-wave" style="font-size: 80px; color: #ffd700;"></i>
+        </div>
+        <h2>Goodbye, Dear Admin!</h2>
+        <p>Thank you for your service. We look forward to your next visit. Stay amazing!</p>
+    </div>
+
+    <!-- Admin cursor styles -->
+    <style>
+    /* Update Admin cursor styles */
+    .admin-cursor {
+        width: 8px;
+        height: 8px;
+        background: linear-gradient(45deg, #FFD700, #FFA500);
+        border-radius: 50%;
+        position: fixed;
+        pointer-events: none;
+        z-index: 999999;
+        transform: translate(-50%, -50%);  /* Center the dot on cursor */
+        transition: all 0.15s ease-out;
+        mix-blend-mode: difference;
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        opacity: 1;
+    }
+
+    .admin-cursor-ring {
+        width: 40px;
+        height: 40px;
+        border: 2px solid rgba(255, 215, 0, 0.5);
+        border-radius: 50%;
+        position: fixed;
+        pointer-events: none;
+        z-index: 999998;
+        transform: translate(-50%, -50%);
+        transition: all 0.15s ease-out;
+        mix-blend-mode: difference;
+        opacity: 1;
+    }
+
+    .admin-cursor.active {
+        width: 12px;
+        height: 12px;
+        background: linear-gradient(45deg, #FFA500, #FF4500);
+    }
+
+    .admin-cursor-ring.active {
+        width: 30px;
+        height: 30px;
+        border-color: rgba(255, 165, 0, 0.8);
+    }
+
+    .admin-cursor.hover {
+        width: 16px;
+        height: 16px;
+        background: linear-gradient(45deg, #FFD700, #FF8C00);
+        animation: cursorPulse 1s infinite;
+        transform: translate(-50%, -50%);  /* Keep centered when hovering */
+    }
+
+    .admin-cursor-ring.hover {
+        width: 50px;
+        height: 50px;
+        border-width: 3px;
+        border-color: rgba(255, 215, 0, 0.8);
+        animation: ringPulse 1s infinite;
+    }
+
+    @keyframes cursorPulse {
+        0% { transform: translate(-50%, -50%) scale(1); }
+        50% { transform: translate(-50%, -50%) scale(1.2); }
+        100% { transform: translate(-50%, -50%) scale(1); }
+    }
+
+    @keyframes ringPulse {
+        0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.5; }
+        100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+
+    /* Add sparkle effect for admin cursor */
+    .admin-cursor::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: inherit;
+        border-radius: inherit;
+        filter: blur(5px);
+        opacity: 0.5;
+        animation: sparkle 2s infinite;
+    }
+
+    @keyframes sparkle {
+        0% { transform: scale(1); opacity: 0.5; }
+        50% { transform: scale(1.5); opacity: 0.2; }
+        100% { transform: scale(1); opacity: 0.5; }
+    }
+    </style>
+</body>
+</html>
