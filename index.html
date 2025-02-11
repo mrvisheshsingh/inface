@@ -80,7 +80,7 @@
             <div class="menu logged-in-menu" style="display: none;">
                 <div class="left-menu">
                     <ul>
-                        <li><a href="#" data-page="logged-in/dashboard">Dashboard</a></li>
+                        <li><a href="#" id="dashboardLink" data-page="logged-in/dashboard">Dashboard</a></li>
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle">
                                 Attendance
@@ -177,9 +177,10 @@
                            pattern="\d{12}"
                            maxlength="12"
                            placeholder="Enter your UID"
+                           oninput="togglePasswordField(this.value)"
                            required>
                 </div>
-                <div class="form-group">
+                <div class="form-group" id="passwordGroup">
                     <label for="loginPassword">Password</label>
                     <div class="password-field">
                         <input type="password" id="loginPassword" 
@@ -468,7 +469,7 @@
 
             try {
                 // Special case for ADMIN - no password required
-                if (enteredUid === 'ADMIN') {
+                if (enteredUid.toUpperCase() === 'ADMIN') {
                     // Show admin popup
                     const adminPopup = document.getElementById('adminPopup');
                     adminPopup.classList.add('show');
@@ -489,7 +490,7 @@
                     // Update UI after delay
                     setTimeout(() => {
                         adminPopup.classList.remove('show');
-                        toggleMenu(true);
+                        window.location.href = '/adminpages/admindash.html';
                         showAlert('Welcome Administrator!', 'success');
                     }, 3000);
                     
@@ -530,14 +531,15 @@
                 localStorage.setItem('userSession', JSON.stringify({
                     uid: userData.uid,
                     name: userData.full_name,
-                    email: userData.email
+                    email: userData.email,
+                    isAdmin: false
                 }));
 
                 showAlert(`Welcome back, ${userData.full_name}!`, 'success', 'loginForm');
                 
                 setTimeout(() => {
                     closeLoginForm();
-                    toggleMenu(true);
+                    window.location.href = 'userdash.html';
                 }, 1500);
 
             } catch (error) {
@@ -1656,6 +1658,24 @@
                 if (normalCursorOutline) normalCursorOutline.style.display = 'block';
             }
         });
+
+        // Add this new function
+        function togglePasswordField(uid) {
+            const passwordGroup = document.getElementById('passwordGroup');
+            const loginPassword = document.getElementById('loginPassword');
+            
+            if (uid.toUpperCase() === 'ADMIN') {
+                passwordGroup.style.display = 'none';
+                loginPassword.removeAttribute('required');
+                // Remove pattern validation for ADMIN
+                document.getElementById('loginUid').removeAttribute('pattern');
+            } else {
+                passwordGroup.style.display = 'block';
+                loginPassword.setAttribute('required', 'required');
+                // Restore pattern validation for regular users
+                document.getElementById('loginUid').setAttribute('pattern', '\\d{12}');
+            }
+        }
     </script>
 
     <!-- Update the cursor movement script -->
@@ -2196,5 +2216,24 @@
         100% { transform: scale(1); opacity: 0.5; }
     }
     </style>
+
+    <!-- Add this to your existing scripts -->
+    <script>
+        // Add this to your existing scripts
+        document.addEventListener('DOMContentLoaded', function() {
+            const dashboardLink = document.getElementById('dashboardLink');
+            if (dashboardLink) {
+                dashboardLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const userSession = JSON.parse(localStorage.getItem('userSession') || '{}');
+                    if (userSession.isAdmin) {
+                        window.location.href = '/adminpages/admindash.html';
+                    } else {
+                        window.location.href = 'userdash.html';
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Logs - Admin Dashboard</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Copy sidebar structure -->
+
+        <div class="main-content">
+            <div class="page-header">
+                <h1>System Logs</h1>
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search logs...">
+                </div>
+            </div>
+            <div class="page-content">
+                <!-- Real-time Monitoring -->
+                <div class="realtime-monitor">
+                    <div class="monitor-header">
+                        <h3><i class="fas fa-satellite-dish"></i> Real-time Log Monitor</h3>
+                        <div class="monitor-controls">
+                            <button class="btn-pause">
+                                <i class="fas fa-pause"></i> Pause
+                            </button>
+                            <select class="refresh-rate">
+                                <option value="1">Refresh: 1s</option>
+                                <option value="5">Refresh: 5s</option>
+                                <option value="10">Refresh: 10s</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="live-feed">
+                        <!-- Real-time log entries will appear here -->
+                    </div>
+                </div>
+
+                <!-- Advanced Filters -->
+                <div class="advanced-filters">
+                    <button class="toggle-filters">
+                        <i class="fas fa-sliders-h"></i> Advanced Filters
+                    </button>
+                    <div class="filter-panel">
+                        <div class="filter-group">
+                            <label>Time Range</label>
+                            <select>
+                                <option>Last 24 Hours</option>
+                                <option>Last 7 Days</option>
+                                <option>Last 30 Days</option>
+                                <option>Custom Range</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Severity Levels</label>
+                            <div class="checkbox-group">
+                                <label><input type="checkbox" checked> Error</label>
+                                <label><input type="checkbox" checked> Warning</label>
+                                <label><input type="checkbox" checked> Info</label>
+                                <label><input type="checkbox" checked> Debug</label>
+                            </div>
+                        </div>
+                        <div class="filter-group">
+                            <label>Source</label>
+                            <select multiple>
+                                <option>Authentication</option>
+                                <option>System</option>
+                                <option>Database</option>
+                                <option>API</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Log Filters -->
+                <div class="log-filters">
+                    <select id="logType">
+                        <option value="all">All Logs</option>
+                        <option value="error">Error Logs</option>
+                        <option value="warning">Warning Logs</option>
+                        <option value="info">Info Logs</option>
+                    </select>
+                    <input type="date" id="logDate">
+                    <button class="filter-btn">
+                        <i class="fas fa-filter"></i>
+                        Apply Filter
+                    </button>
+                    <button class="export-btn">
+                        <i class="fas fa-download"></i>
+                        Export Logs
+                    </button>
+                </div>
+
+                <!-- Log Summary -->
+                <div class="log-summary">
+                    <div class="stat-card">
+                        <div>
+                            <i class="fas fa-exclamation-circle"></i>
+                            <h3>Error Logs</h3>
+                            <p>23</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div>
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h3>Warning Logs</h3>
+                            <p>45</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div>
+                            <i class="fas fa-info-circle"></i>
+                            <h3>Info Logs</h3>
+                            <p>156</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Log Table -->
+                <div class="log-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Level</th>
+                                <th>Source</th>
+                                <th>Message</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="log-error">
+                                <td>2024-01-15 10:30:15</td>
+                                <td><span class="badge error">Error</span></td>
+                                <td>Authentication</td>
+                                <td>Failed login attempt - Invalid credentials</td>
+                                <td>
+                                    <button class="action-btn btn-view"><i class="fas fa-eye"></i></button>
+                                    <button class="action-btn btn-delete"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <tr class="log-warning">
+                                <td>2024-01-15 10:25:00</td>
+                                <td><span class="badge warning">Warning</span></td>
+                                <td>System</td>
+                                <td>High CPU usage detected</td>
+                                <td>
+                                    <button class="action-btn btn-view"><i class="fas fa-eye"></i></button>
+                                    <button class="action-btn btn-delete"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <tr class="log-info">
+                                <td>2024-01-15 10:20:30</td>
+                                <td><span class="badge info">Info</span></td>
+                                <td>User</td>
+                                <td>New user registration successful</td>
+                                <td>
+                                    <button class="action-btn btn-view"><i class="fas fa-eye"></i></button>
+                                    <button class="action-btn btn-delete"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Log Details Modal -->
+                <div id="logModal" class="modal">
+                    <div class="modal-content">
+                        <h2>Log Details</h2>
+                        <div class="log-details">
+                            <!-- Log details will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

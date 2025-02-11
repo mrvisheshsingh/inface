@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - Admin Dashboard</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Copy sidebar structure -->
+
+        <div class="main-content">
+            <div class="page-header">
+                <h1>Reports</h1>
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search reports...">
+                </div>
+            </div>
+            <div class="page-content">
+                <!-- Report Generation Tools -->
+                <div class="report-tools">
+                    <div class="report-filters">
+                        <select id="reportType">
+                            <option value="attendance">Attendance Report</option>
+                            <option value="user">User Report</option>
+                            <option value="system">System Report</option>
+                        </select>
+                        <input type="date" id="reportStartDate">
+                        <input type="date" id="reportEndDate">
+                        <button class="generate-btn">
+                            <i class="fas fa-file-alt"></i>
+                            Generate Report
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Report Cards -->
+                <div class="report-cards">
+                    <div class="report-card">
+                        <div class="report-icon">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+                        <div class="report-info">
+                            <h3>Monthly Attendance Report</h3>
+                            <p>Generated on: 2024-01-15</p>
+                            <div class="report-actions">
+                                <button class="view-btn"><i class="fas fa-eye"></i> View</button>
+                                <button class="download-btn"><i class="fas fa-download"></i> Download</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Add more report cards -->
+                </div>
+
+                <!-- Report Charts -->
+                <div class="report-charts">
+                    <div class="chart-card">
+                        <h3>Attendance Trends</h3>
+                        <canvas id="attendanceTrendChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Department-wise Statistics</h3>
+                        <canvas id="departmentChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+</html> 

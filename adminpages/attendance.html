@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Management - Admin Dashboard</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Copy sidebar structure -->
+
+        <div class="main-content">
+            <div class="page-header">
+                <h1>Attendance Management</h1>
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search attendance records...">
+                </div>
+            </div>
+            <div class="page-content">
+                <!-- Date Filter -->
+                <div class="date-filter">
+                    <input type="date" id="startDate">
+                    <span>to</span>
+                    <input type="date" id="endDate">
+                    <button class="filter-btn">Apply Filter</button>
+                </div>
+
+                <!-- Attendance Stats -->
+                <div class="attendance-stats">
+                    <div class="stat-card">
+                        <div>
+                            <i class="fas fa-user-check"></i>
+                            <h3>Present Today</h3>
+                            <p>156</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div>
+                            <i class="fas fa-user-times"></i>
+                            <h3>Absent Today</h3>
+                            <p>12</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div>
+                            <i class="fas fa-clock"></i>
+                            <h3>Late Arrivals</h3>
+                            <p>8</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Attendance Table -->
+                <div class="attendance-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User ID</th>
+                                <th>Name</th>
+                                <th>Date</th>
+                                <th>Check In</th>
+                                <th>Check Out</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Attendance records -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

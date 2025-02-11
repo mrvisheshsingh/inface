@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Settings - Admin Dashboard</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Copy sidebar structure -->
+
+        <div class="main-content">
+            <div class="page-header">
+                <h1>Security Settings</h1>
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search security settings...">
+                </div>
+            </div>
+            <div class="page-content">
+                <!-- Security Overview -->
+                <div class="security-overview">
+                    <div class="stat-card">
+                        <div>
+                            <i class="fas fa-shield-alt"></i>
+                            <h3>Security Score</h3>
+                            <p>85%</p>
+                        </div>
+                        <span class="trend up">Good</span>
+                    </div>
+                    <div class="stat-card">
+                        <div>
+                            <i class="fas fa-user-shield"></i>
+                            <h3>Active Sessions</h3>
+                            <p>12</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div>
+                            <i class="fas fa-lock"></i>
+                            <h3>Failed Attempts</h3>
+                            <p>3</p>
+                        </div>
+                        <span class="trend down">Last 24h</span>
+                    </div>
+                </div>
+
+                <!-- Security Settings Grid -->
+                <div class="settings-grid">
+                    <!-- Password Policy -->
+                    <div class="settings-card">
+                        <h3><i class="fas fa-key"></i> Password Policy</h3>
+                        <div class="settings-form">
+                            <div class="form-group">
+                                <label class="switch-label">
+                                    Require Strong Passwords
+                                    <div class="switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label>Minimum Password Length</label>
+                                <input type="number" value="8">
+                            </div>
+                            <div class="form-group">
+                                <label>Password Expiry (days)</label>
+                                <input type="number" value="90">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2FA Settings -->
+                    <div class="settings-card">
+                        <h3><i class="fas fa-mobile-alt"></i> Two-Factor Authentication</h3>
+                        <div class="settings-form">
+                            <div class="form-group">
+                                <label class="switch-label">
+                                    Enable 2FA for All Users
+                                    <div class="switch">
+                                        <input type="checkbox">
+                                        <span class="slider"></span>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label>2FA Method</label>
+                                <select>
+                                    <option>Email</option>
+                                    <option>SMS</option>
+                                    <option>Authenticator App</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Session Settings -->
+                    <div class="settings-card">
+                        <h3><i class="fas fa-clock"></i> Session Settings</h3>
+                        <div class="settings-form">
+                            <div class="form-group">
+                                <label>Session Timeout (minutes)</label>
+                                <input type="number" value="30">
+                            </div>
+                            <div class="form-group">
+                                <label class="switch-label">
+                                    Force Single Session
+                                    <div class="switch">
+                                        <input type="checkbox">
+                                        <span class="slider"></span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- IP Whitelist -->
+                    <div class="settings-card">
+                        <h3><i class="fas fa-network-wired"></i> IP Whitelist</h3>
+                        <div class="settings-form">
+                            <div class="form-group">
+                                <label>Allowed IP Addresses</label>
+                                <textarea placeholder="Enter IP addresses (one per line)"></textarea>
+                            </div>
+                            <button class="add-ip-btn">
+                                <i class="fas fa-plus"></i> Add IP
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Logs -->
+                <div class="security-logs">
+                    <h3>Recent Security Events</h3>
+                    <div class="log-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Event</th>
+                                    <th>IP Address</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Security event logs -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Security Audit Dashboard -->
+                <div class="audit-dashboard">
+                    <h3><i class="fas fa-clipboard-check"></i> Security Audit</h3>
+                    <div class="audit-grid">
+                        <div class="audit-card">
+                            <div class="audit-icon warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="audit-info">
+                                <h4>Vulnerabilities</h4>
+                                <p class="audit-count">3</p>
+                                <span class="audit-status warning">Needs Attention</span>
+                            </div>
+                        </div>
+                        <div class="audit-card">
+                            <div class="audit-icon success">
+                                <i class="fas fa-shield-check"></i>
+                            </div>
+                            <div class="audit-info">
+                                <h4>Security Patches</h4>
+                                <p class="audit-count">Up to date</p>
+                                <span class="audit-status success">All Clear</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Threat Detection -->
+                <div class="threat-detection">
+                    <h3><i class="fas fa-radar"></i> Threat Detection</h3>
+                    <div class="threat-map">
+                        <div class="map-container">
+                            <!-- World map with threat indicators -->
+                        </div>
+                        <div class="threat-stats">
+                            <div class="stat">
+                                <label>Active Threats</label>
+                                <span class="count">5</span>
+                            </div>
+                            <div class="stat">
+                                <label>Blocked Attempts</label>
+                                <span class="count">127</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="threat-list">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Threat Type</th>
+                                    <th>Source IP</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="threat-high">
+                                    <td>2024-01-15 15:30</td>
+                                    <td>Brute Force Attack</td>
+                                    <td>192.168.1.100</td>
+                                    <td><span class="badge blocked">Blocked</span></td>
+                                    <td>
+                                        <button class="btn-details">Details</button>
+                                        <button class="btn-block">Block IP</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Backup & Recovery -->
+                <div class="backup-recovery">
+                    <h3><i class="fas fa-database"></i> Backup & Recovery</h3>
+                    <div class="backup-status">
+                        <div class="last-backup">
+                            <span>Last Backup: 2024-01-15 12:00</span>
+                            <button class="btn-backup">
+                                <i class="fas fa-save"></i> Backup Now
+                            </button>
+                        </div>
+                        <div class="backup-schedule">
+                            <label>Backup Schedule</label>
+                            <select>
+                                <option>Every 6 Hours</option>
+                                <option>Every 12 Hours</option>
+                                <option>Daily</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Save Button -->
+                <div class="settings-actions">
+                    <button class="save-btn">
+                        <i class="fas fa-save"></i> Save Security Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 
