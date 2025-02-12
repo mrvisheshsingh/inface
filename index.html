@@ -10,6 +10,19 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Login Form Button Spacing */
+        #loginForm .submit-btn {
+            margin: 5px 0;
+        }
+        
+        #loginForm p {
+            margin: 10px 0;
+            color: #888;
+        }
+        
+        /* Your existing styles... */
+    </style>
 </head>
 <body>
     <!-- Add this right after the opening <body> tag -->
@@ -176,7 +189,7 @@
                            id="loginUid" 
                            pattern="\d{12}"
                            maxlength="12"
-                           placeholder="Enter your UID"
+                           placeholder="Enter your 12 Digit UID"
                            oninput="togglePasswordField(this.value)"
                            required>
                 </div>
@@ -189,7 +202,9 @@
                         <i class="fas fa-eye-slash password-toggle" onclick="togglePassword('loginPassword', this)"></i>
                     </div>
                 </div>
-                <button type="submit" class="submit-btn">Login</button>
+                <button type="submit" class="submit-btn">Login With Password</button>
+                <p align="center" style="margin: 5px 0;">or</p>
+                <button type="submit" class="submit-btn">Login using FaceData</button>
                 <p class="form-footer">
                     Don't have an account? <a href="#" onclick="switchToRegister(event)">Register</a>
                 </p>
@@ -490,7 +505,7 @@
                     // Update UI after delay
                     setTimeout(() => {
                         adminPopup.classList.remove('show');
-                        window.location.href = '/adminpages/admindash.html';
+                        window.location.href = 'adminpages/admindash.html';
                         showAlert('Welcome Administrator!', 'success');
                     }, 3000);
                     
@@ -1076,10 +1091,11 @@
 
                 const stream = await navigator.mediaDevices.getUserMedia({ 
                     video: { 
-                        width: { ideal: 640 },
-                        height: { ideal: 480 },
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
                         facingMode: "user"
-                    } 
+                    },
+                    audio: false
                 });
                 console.log('Camera accessed successfully');
                 video.srcObject = stream;
@@ -1676,6 +1692,63 @@
                 document.getElementById('loginUid').setAttribute('pattern', '\\d{12}');
             }
         }
+
+        // Face Recognition Functions
+        function openFaceLoginPopup() {
+            document.getElementById('faceLoginPopup').style.display = 'flex';
+            startCamera();
+        }
+
+        function closeFaceLoginPopup() {
+            document.getElementById('faceLoginPopup').style.display = 'none';
+            stopCamera();
+        }
+
+        async function startCamera() {
+            try {
+                const video = document.getElementById('faceVideo');
+                // Wait for video metadata to load
+                video.addEventListener('loadedmetadata', () => {
+                    video.play();
+                });
+
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                        facingMode: 'user'
+                    },
+                    audio: false
+                });
+                video.srcObject = stream;
+
+                // Add error handling for video
+                video.onerror = (err) => {
+                    console.error('Video error:', err);
+                    alert('Error playing video stream');
+                };
+            } catch (err) {
+                console.error('Error accessing camera:', err);
+                alert('Unable to access camera. Please ensure camera permissions are granted.');
+            }
+        }
+
+        function stopCamera() {
+            const video = document.getElementById('faceVideo');
+            const stream = video.srcObject;
+            if (stream) {
+                const tracks = stream.getTracks();
+                tracks.forEach(track => track.stop());
+                video.srcObject = null;
+            }
+        }
+
+        // Update the login form to handle face login button
+        document.querySelector('#loginForm button:nth-child(5)').onclick = function(e) {
+            e.preventDefault();
+            document.getElementById('loginPopup').style.display = 'none';
+            openFaceLoginPopup();
+        };
     </script>
 
     <!-- Update the cursor movement script -->
@@ -2227,7 +2300,7 @@
                     e.preventDefault();
                     const userSession = JSON.parse(localStorage.getItem('userSession') || '{}');
                     if (userSession.isAdmin) {
-                        window.location.href = '/adminpages/admindash.html';
+                        window.location.href = 'adminpages/admindash.html';
                     } else {
                         window.location.href = 'userdash.html';
                     }
@@ -2235,5 +2308,111 @@
             }
         });
     </script>
+
+    <!-- Face Recognition Popup -->
+    <div id="faceLoginPopup" class="popup">
+        <div class="popup-content face-enrollment">
+            <span class="close-btn" onclick="closeFaceLoginPopup()">×</span>
+            <h2>Face Recognition</h2>
+            <div class="camera-container">
+                <video id="faceVideo" autoplay playsinline></video>
+                <canvas id="faceCanvas" style="display: none;"></canvas>
+                <div class="face-guide-overlay">
+                    <div class="face-guide"></div>
+                </div>
+            </div>
+            <div class="enrollment-progress">
+                <div class="progress-text">Position your face inside the circle</div>
+                <div class="progress-bar">
+                    <div class="progress"></div>
+                </div>
+            </div>
+            <button id="startFaceLoginBtn" class="submit-btn">
+                <i class="fas fa-camera"></i> Start Face Recognition
+            </button>
+        </div>
+    </div>
+
+    <style>
+        /* Face Recognition Popup Styles */
+        .face-enrollment {
+            max-width: 640px;
+            width: 90%;
+            padding: 20px;
+            background: rgba(20, 20, 20, 0.95);
+            border: 1px solid rgba(217, 22, 86, 0.2);
+        }
+
+        .camera-container {
+            position: relative;
+            width: 100%;
+            height: 480px;
+            margin: 20px 0;
+            background: transparent;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        #faceVideo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1); /* Mirror the video */
+            background: transparent;
+        }
+
+        .face-guide-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .face-guide {
+            width: 300px;
+            height: 300px;
+            border: 3px solid #D91656;
+            border-radius: 50%;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.4);
+            animation: pulse 2s infinite;
+            position: relative;
+            z-index: 2;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.02); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .enrollment-progress {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .progress-text {
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress {
+            width: 0%;
+            height: 100%;
+            background: #D91656;
+            transition: width 0.3s ease;
+        }
+    </style>
 </body>
 </html>

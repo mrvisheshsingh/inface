@@ -5,12 +5,158 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Attendance Management - Admin Dashboard</title>
     <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="admin-layout.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Attendance Management Specific Styles */
+        .date-filter {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            background: rgba(26, 26, 26, 0.95);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(217, 22, 86, 0.1);
+        }
+
+        .date-filter input[type="date"] {
+            padding: 10px 15px;
+            border-radius: 6px;
+            border: 1px solid rgba(217, 22, 86, 0.1);
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            background: rgba(217, 22, 86, 0.1);
+            color: #D91656;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover {
+            background: rgba(217, 22, 86, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Attendance Stats */
+        .attendance-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(26, 26, 26, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(217, 22, 86, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(217, 22, 86, 0.2);
+        }
+
+        .stat-card i {
+            font-size: 2.5rem;
+            color: #D91656;
+            margin-bottom: 15px;
+        }
+
+        .stat-card h3 {
+            font-size: 1.2rem;
+            color: #fff;
+            margin: 10px 0;
+        }
+
+        .stat-card p {
+            font-size: 2rem;
+            color: #fff;
+            margin: 10px 0;
+        }
+
+        /* Attendance Table */
+        .attendance-table {
+            background: rgba(26, 26, 26, 0.95);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid rgba(217, 22, 86, 0.1);
+        }
+
+        .attendance-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .attendance-table th,
+        .attendance-table td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid rgba(217, 22, 86, 0.1);
+        }
+
+        .attendance-table th {
+            background: rgba(217, 22, 86, 0.1);
+            color: #D91656;
+            font-weight: 600;
+        }
+
+        .attendance-table td {
+            color: #fff;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .status-present {
+            background: rgba(46, 213, 115, 0.1);
+            color: #2ed573;
+        }
+
+        .status-absent {
+            background: rgba(255, 71, 87, 0.1);
+            color: #ff4757;
+        }
+
+        .status-late {
+            background: rgba(255, 159, 67, 0.1);
+            color: #ff9f43;
+        }
+
+        /* Action Buttons */
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: none;
+            background: rgba(217, 22, 86, 0.1);
+            color: #D91656;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 5px;
+        }
+
+        .action-btn:hover {
+            background: rgba(217, 22, 86, 0.2);
+            transform: translateY(-2px);
+        }
+    </style>
 </head>
 <body>
     <div class="admin-container">
-        <!-- Copy sidebar structure -->
-
         <div class="main-content">
             <div class="page-header">
                 <h1>Attendance Management</h1>
@@ -31,25 +177,19 @@
                 <!-- Attendance Stats -->
                 <div class="attendance-stats">
                     <div class="stat-card">
-                        <div>
-                            <i class="fas fa-user-check"></i>
-                            <h3>Present Today</h3>
-                            <p>156</p>
-                        </div>
+                        <i class="fas fa-user-check"></i>
+                        <h3>Present Today</h3>
+                        <p>156</p>
                     </div>
                     <div class="stat-card">
-                        <div>
-                            <i class="fas fa-user-times"></i>
-                            <h3>Absent Today</h3>
-                            <p>12</p>
-                        </div>
+                        <i class="fas fa-user-times"></i>
+                        <h3>Absent Today</h3>
+                        <p>12</p>
                     </div>
                     <div class="stat-card">
-                        <div>
-                            <i class="fas fa-clock"></i>
-                            <h3>Late Arrivals</h3>
-                            <p>8</p>
-                        </div>
+                        <i class="fas fa-clock"></i>
+                        <h3>Late Arrivals</h3>
+                        <p>8</p>
                     </div>
                 </div>
 
@@ -68,7 +208,19 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Attendance records -->
+                            <tr>
+                                <td>001</td>
+                                <td>John Doe</td>
+                                <td>2024-01-15</td>
+                                <td>09:00 AM</td>
+                                <td>05:00 PM</td>
+                                <td><span class="status-badge status-present">Present</span></td>
+                                <td>
+                                    <button class="action-btn" title="View"><i class="fas fa-eye"></i></button>
+                                    <button class="action-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                                </td>
+                            </tr>
+                            <!-- Add more rows as needed -->
                         </tbody>
                     </table>
                 </div>

@@ -883,31 +883,31 @@
             </div>
 
             <nav class="sidebar-menu">
-                <a href="adminpages/admindash.html" class="menu-item active">
+                <a href="#" data-page="admindash" class="menu-item active">
                     <i class="fas fa-home"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="adminpages/users.html" class="menu-item">
+                <a href="#" data-page="users" class="menu-item">
                     <i class="fas fa-users"></i>
                     <span>User Management</span>
                 </a>
-                <a href="adminpages/attendance.html" class="menu-item">
+                <a href="#" data-page="attendance" class="menu-item">
                     <i class="fas fa-clock"></i>
                     <span>Attendance</span>
                 </a>
-                <a href="adminpages/reports.html" class="menu-item">
+                <a href="#" data-page="reports" class="menu-item">
                     <i class="fas fa-chart-bar"></i>
                     <span>Reports</span>
                 </a>
-                <a href="adminpages/settings.html" class="menu-item">
+                <a href="#" data-page="settings" class="menu-item">
                     <i class="fas fa-cog"></i>
                     <span>Settings</span>
                 </a>
-                <a href="adminpages/logs.html" class="menu-item">
+                <a href="#" data-page="logs" class="menu-item">
                     <i class="fas fa-history"></i>
                     <span>System Logs</span>
                 </a>
-                <a href="adminpages/security.html" class="menu-item">
+                <a href="#" data-page="security" class="menu-item">
                     <i class="fas fa-shield-alt"></i>
                     <span>Security</span>
                 </a>
@@ -1125,52 +1125,125 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Initialize charts
-        const attendanceCtx = document.getElementById('attendanceChart').getContext('2d');
-        const activityCtx = document.getElementById('activityChart').getContext('2d');
+        document.addEventListener('DOMContentLoaded', function() {
+            // Define the dashboard charts initialization function
+            window.initializeDashboardCharts = function() {
+                const attendanceCtx = document.getElementById('attendanceChart').getContext('2d');
+                const activityCtx = document.getElementById('activityChart').getContext('2d');
 
-        // Attendance Chart
-        new Chart(attendanceCtx, {
-            type: 'line',
-            data: {
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                datasets: [{
-                    label: 'Attendance Rate',
-                    data: [85, 87, 92, 88, 90, 85, 89],
-                    borderColor: '#D91656',
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false
+                // Attendance Chart
+                new Chart(attendanceCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [{
+                            label: 'Attendance Rate',
+                            data: [85, 87, 92, 88, 90, 85, 89],
+                            borderColor: '#D91656',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+
+                // Activity Chart
+                new Chart(activityCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Login', 'Attendance', 'Reports', 'Settings', 'Profile'],
+                        datasets: [{
+                            label: 'User Activity',
+                            data: [65, 59, 80, 81, 56],
+                            backgroundColor: '#640D5F'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            };
+
+            const mainContent = document.querySelector('.page-content');
+            const menuItems = document.querySelectorAll('.menu-item[data-page]');
+            
+            // Function to load page content
+            async function loadPageContent(page) {
+                try {
+                    let pagePath;
+                    if (page === 'admindash') {
+                        pagePath = 'admindash.html';
+                    } else {
+                        pagePath = `${page}.html`;
+                    }
+
+                    const response = await fetch(pagePath);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const html = await response.text();
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = html;
+                    
+                    // Extract both content and styles
+                    const newContent = tempDiv.querySelector('.page-content');
+                    const styles = tempDiv.querySelectorAll('style');
+                    
+                    // Update content
+                    mainContent.innerHTML = newContent.innerHTML;
+                    
+                    // Apply page-specific styles
+                    const existingStyles = document.querySelectorAll('style[data-page]');
+                    existingStyles.forEach(style => style.remove());
+                    
+                    styles.forEach(style => {
+                        style.setAttribute('data-page', page);
+                        document.head.appendChild(style.cloneNode(true));
+                    });
+                    
+                    // Update page title
+                    const pageTitle = tempDiv.querySelector('title').textContent;
+                    document.title = pageTitle;
+                    
+                    // Update header text
+                    const headerText = tempDiv.querySelector('.page-header h1').textContent;
+                    document.querySelector('.page-header h1').textContent = headerText;
+                    
+                    // Initialize any scripts specific to the loaded page
+                    if (page === 'admindash' || page === 'dashboard') {
+                        initializeDashboardCharts();
+                    }
+                } catch (error) {
+                    console.error('Error loading page:', error);
+                    mainContent.innerHTML = `<div class="error-message">Error loading content: ${error.message}</div>`;
+                }
             }
-        });
-
-        // Activity Chart
-        new Chart(activityCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Login', 'Attendance', 'Reports', 'Settings', 'Profile'],
-                datasets: [{
-                    label: 'User Activity',
-                    data: [65, 59, 80, 81, 56],
-                    backgroundColor: '#640D5F'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false
-            }
-        });
-
-        // Add active class to current menu item
-        const menuItems = document.querySelectorAll('.menu-item');
-        menuItems.forEach(item => {
-            item.addEventListener('click', function() {
-                menuItems.forEach(i => i.classList.remove('active'));
-                this.classList.add('active');
+            
+            // Handle menu item clicks
+            menuItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all items
+                    menuItems.forEach(i => i.classList.remove('active'));
+                    
+                    // Add active class to clicked item
+                    this.classList.add('active');
+                    
+                    // Load the corresponding page content
+                    const page = this.dataset.page;
+                    loadPageContent(page);
+                });
             });
+            
+            // Load dashboard by default
+            loadPageContent('admindash');
+            
+            // Initialize charts on first load
+            initializeDashboardCharts();
         });
     </script>
 </body>

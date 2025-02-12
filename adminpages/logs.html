@@ -5,12 +5,196 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>System Logs - Admin Dashboard</title>
     <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="admin-layout.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Real-time Monitor Styles */
+        .realtime-monitor {
+            background: rgba(26, 26, 26, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(217, 22, 86, 0.1);
+        }
+
+        .monitor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .monitor-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-pause {
+            padding: 8px 15px;
+            border-radius: 6px;
+            background: rgba(217, 22, 86, 0.1);
+            color: #D91656;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .live-feed {
+            height: 300px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            overflow-y: auto;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .log-entry {
+            padding: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .log-entry .timestamp {
+            color: #888;
+            min-width: 150px;
+        }
+
+        .log-entry .badge {
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .log-entry .message {
+            flex: 1;
+        }
+
+        .log-entry:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Log Filters */
+        .log-filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-select {
+            padding: 8px 15px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(217, 22, 86, 0.1);
+            color: #fff;
+        }
+
+        /* Log Summary */
+        .log-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(26, 26, 26, 0.95);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(217, 22, 86, 0.1);
+            text-align: center;
+        }
+
+        .stat-card i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-card.error i { color: #ff4757; }
+        .stat-card.warning i { color: #ffa502; }
+        .stat-card.info i { color: #2ed573; }
+
+        /* Log Table */
+        .log-table {
+            background: rgba(26, 26, 26, 0.95);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(217, 22, 86, 0.1);
+        }
+
+        .log-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .log-table th, 
+        .log-table td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid rgba(217, 22, 86, 0.1);
+        }
+
+        .log-table th {
+            background: rgba(217, 22, 86, 0.1);
+            color: #D91656;
+        }
+
+        .badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .badge.error {
+            background: rgba(255, 71, 87, 0.1);
+            color: #ff4757;
+        }
+
+        .badge.warning {
+            background: rgba(255, 165, 2, 0.1);
+            color: #ffa502;
+        }
+
+        .badge.info {
+            background: rgba(46, 213, 115, 0.1);
+            color: #2ed573;
+        }
+
+        /* Action Buttons */
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: none;
+            background: rgba(217, 22, 86, 0.1);
+            color: #D91656;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 5px;
+        }
+
+        .action-btn:hover {
+            background: rgba(217, 22, 86, 0.2);
+            transform: translateY(-2px);
+        }
+    </style>
 </head>
 <body>
     <div class="admin-container">
-        <!-- Copy sidebar structure -->
-
         <div class="main-content">
             <div class="page-header">
                 <h1>System Logs</h1>
@@ -20,7 +204,7 @@
                 </div>
             </div>
             <div class="page-content">
-                <!-- Real-time Monitoring -->
+                <!-- Real-time Monitor -->
                 <div class="realtime-monitor">
                     <div class="monitor-header">
                         <h3><i class="fas fa-satellite-dish"></i> Real-time Log Monitor</h3>
@@ -28,95 +212,72 @@
                             <button class="btn-pause">
                                 <i class="fas fa-pause"></i> Pause
                             </button>
-                            <select class="refresh-rate">
-                                <option value="1">Refresh: 1s</option>
-                                <option value="5">Refresh: 5s</option>
-                                <option value="10">Refresh: 10s</option>
+                            <select class="filter-select">
+                                <option>Refresh: 1s</option>
+                                <option>Refresh: 5s</option>
+                                <option>Refresh: 10s</option>
                             </select>
                         </div>
                     </div>
                     <div class="live-feed">
-                        <!-- Real-time log entries will appear here -->
-                    </div>
-                </div>
-
-                <!-- Advanced Filters -->
-                <div class="advanced-filters">
-                    <button class="toggle-filters">
-                        <i class="fas fa-sliders-h"></i> Advanced Filters
-                    </button>
-                    <div class="filter-panel">
-                        <div class="filter-group">
-                            <label>Time Range</label>
-                            <select>
-                                <option>Last 24 Hours</option>
-                                <option>Last 7 Days</option>
-                                <option>Last 30 Days</option>
-                                <option>Custom Range</option>
-                            </select>
+                        <div class="log-entry">
+                            <span class="timestamp">2024-01-16 14:23:45</span>
+                            <span class="badge info">INFO</span>
+                            <span class="message">System startup complete. All services running.</span>
                         </div>
-                        <div class="filter-group">
-                            <label>Severity Levels</label>
-                            <div class="checkbox-group">
-                                <label><input type="checkbox" checked> Error</label>
-                                <label><input type="checkbox" checked> Warning</label>
-                                <label><input type="checkbox" checked> Info</label>
-                                <label><input type="checkbox" checked> Debug</label>
-                            </div>
+                        <div class="log-entry">
+                            <span class="timestamp">2024-01-16 14:23:47</span>
+                            <span class="badge info">INFO</span>
+                            <span class="message">User authentication service initialized</span>
                         </div>
-                        <div class="filter-group">
-                            <label>Source</label>
-                            <select multiple>
-                                <option>Authentication</option>
-                                <option>System</option>
-                                <option>Database</option>
-                                <option>API</option>
-                            </select>
+                        <div class="log-entry warning">
+                            <span class="timestamp">2024-01-16 14:23:48</span>
+                            <span class="badge warning">WARN</span>
+                            <span class="message">High CPU usage detected (85%)</span>
+                        </div>
+                        <div class="log-entry">
+                            <span class="timestamp">2024-01-16 14:23:50</span>
+                            <span class="badge info">INFO</span>
+                            <span class="message">Database connection pool initialized with 10 connections</span>
+                        </div>
+                        <div class="log-entry error">
+                            <span class="timestamp">2024-01-16 14:23:52</span>
+                            <span class="badge error">ERROR</span>
+                            <span class="message">Failed login attempt - IP: 192.168.1.105</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Log Filters -->
                 <div class="log-filters">
-                    <select id="logType">
-                        <option value="all">All Logs</option>
-                        <option value="error">Error Logs</option>
-                        <option value="warning">Warning Logs</option>
-                        <option value="info">Info Logs</option>
+                    <select class="filter-select">
+                        <option>All Logs</option>
+                        <option>Error Logs</option>
+                        <option>Warning Logs</option>
+                        <option>Info Logs</option>
                     </select>
-                    <input type="date" id="logDate">
-                    <button class="filter-btn">
-                        <i class="fas fa-filter"></i>
-                        Apply Filter
-                    </button>
-                    <button class="export-btn">
-                        <i class="fas fa-download"></i>
-                        Export Logs
+                    <input type="date" class="filter-select">
+                    <button class="btn-pause">
+                        <i class="fas fa-filter"></i> Apply Filter
                     </button>
                 </div>
 
                 <!-- Log Summary -->
                 <div class="log-summary">
-                    <div class="stat-card">
-                        <div>
-                            <i class="fas fa-exclamation-circle"></i>
-                            <h3>Error Logs</h3>
-                            <p>23</p>
-                        </div>
+                    <div class="stat-card error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <h3>Error Logs</h3>
+                        <p>23</p>
                     </div>
-                    <div class="stat-card">
-                        <div>
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <h3>Warning Logs</h3>
-                            <p>45</p>
-                        </div>
+                    <div class="stat-card warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Warning Logs</h3>
+                        <p>45</p>
                     </div>
-                    <div class="stat-card">
-                        <div>
-                            <i class="fas fa-info-circle"></i>
-                            <h3>Info Logs</h3>
-                            <p>156</p>
-                        </div>
+                    <div class="stat-card info">
+                        <i class="fas fa-info-circle"></i>
+                        <h3>Info Logs</h3>
+                        <p>156</p>
                     </div>
                 </div>
 
@@ -133,51 +294,81 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr class="log-error">
+                            <tr>
                                 <td>2024-01-15 10:30:15</td>
                                 <td><span class="badge error">Error</span></td>
                                 <td>Authentication</td>
                                 <td>Failed login attempt - Invalid credentials</td>
                                 <td>
-                                    <button class="action-btn btn-view"><i class="fas fa-eye"></i></button>
-                                    <button class="action-btn btn-delete"><i class="fas fa-trash"></i></button>
+                                    <button class="action-btn"><i class="fas fa-eye"></i></button>
+                                    <button class="action-btn"><i class="fas fa-trash"></i></button>
                                 </td>
                             </tr>
-                            <tr class="log-warning">
-                                <td>2024-01-15 10:25:00</td>
-                                <td><span class="badge warning">Warning</span></td>
-                                <td>System</td>
-                                <td>High CPU usage detected</td>
-                                <td>
-                                    <button class="action-btn btn-view"><i class="fas fa-eye"></i></button>
-                                    <button class="action-btn btn-delete"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
-                            <tr class="log-info">
-                                <td>2024-01-15 10:20:30</td>
-                                <td><span class="badge info">Info</span></td>
-                                <td>User</td>
-                                <td>New user registration successful</td>
-                                <td>
-                                    <button class="action-btn btn-view"><i class="fas fa-eye"></i></button>
-                                    <button class="action-btn btn-delete"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
+                            <!-- Add more log entries -->
                         </tbody>
                     </table>
-                </div>
-
-                <!-- Log Details Modal -->
-                <div id="logModal" class="modal">
-                    <div class="modal-content">
-                        <h2>Log Details</h2>
-                        <div class="log-details">
-                            <!-- Log details will be populated here -->
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        // Simulated real-time log updates
+        const liveFeed = document.querySelector('.live-feed');
+        const logMessages = [
+            { type: 'info', message: 'New user registered: sarah@example.com' },
+            { type: 'warning', message: 'Memory usage exceeding 75% threshold' },
+            { type: 'error', message: 'Database query timeout - retrying connection' },
+            { type: 'info', message: 'Backup process started' },
+            { type: 'info', message: 'User john_doe logged in successfully' },
+            { type: 'warning', message: 'SSL Certificate expires in 10 days' },
+            { type: 'error', message: 'API rate limit exceeded for endpoint /users' },
+            { type: 'info', message: 'Cache cleared successfully' },
+            { type: 'warning', message: 'Disk usage at 85% capacity' },
+            { type: 'info', message: 'Scheduled maintenance starting in 1 hour' }
+        ];
+
+        let isPaused = false;
+        const pauseButton = document.querySelector('.btn-pause');
+        
+        pauseButton.addEventListener('click', () => {
+            isPaused = !isPaused;
+            pauseButton.innerHTML = isPaused ? 
+                '<i class="fas fa-play"></i> Resume' : 
+                '<i class="fas fa-pause"></i> Pause';
+        });
+
+        function addLogEntry(type, message) {
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            
+            const now = new Date();
+            const timestamp = now.toISOString().replace('T', ' ').substr(0, 19);
+            
+            entry.innerHTML = `
+                <span class="timestamp">${timestamp}</span>
+                <span class="badge ${type}">${type.toUpperCase()}</span>
+                <span class="message">${message}</span>
+            `;
+            
+            liveFeed.insertBefore(entry, liveFeed.firstChild);
+            
+            // Keep only last 50 entries
+            if (liveFeed.children.length > 50) {
+                liveFeed.removeChild(liveFeed.lastChild);
+            }
+            
+            // Scroll to top
+            liveFeed.scrollTop = 0;
+        }
+
+        // Add random log entry every few seconds
+        setInterval(() => {
+            if (!isPaused) {
+                const randomLog = logMessages[Math.floor(Math.random() * logMessages.length)];
+                addLogEntry(randomLog.type, randomLog.message);
+            }
+        }, 3000);
+    </script>
 </body>
 </html> 

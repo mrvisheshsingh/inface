@@ -5,14 +5,219 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Management - Admin Dashboard</title>
     <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="admin-layout.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Copy all styles from admindash.html -->
+    <style>
+        /* Base Layout Styles */
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 20px;
+        }
+
+        .page-content {
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+            margin-top: 100px;
+        }
+
+        /* User Management Specific Styles */
+        .user-management-tools {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tool-btn {
+            padding: 12px 25px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(217, 22, 86, 0.1);
+            color: #D91656;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+        }
+
+        .tool-btn:hover {
+            background: rgba(217, 22, 86, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .tool-btn i {
+            font-size: 1.1rem;
+        }
+
+        /* User Stats Cards */
+        .user-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(26, 26, 26, 0.95);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(217, 22, 86, 0.1);
+            text-align: center;
+        }
+
+        .stat-card i {
+            font-size: 2rem;
+            color: #D91656;
+            margin-bottom: 10px;
+        }
+
+        .stat-card h4 {
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            color: #888;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        /* Users Table */
+        .users-table {
+            background: rgba(26, 26, 26, 0.95);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(217, 22, 86, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .table-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(217, 22, 86, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-header h3 {
+            color: #fff;
+            font-size: 1.2rem;
+            margin: 0;
+        }
+
+        .table-filters {
+            display: flex;
+            gap: 15px;
+        }
+
+        .filter-select {
+            padding: 8px 15px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(217, 22, 86, 0.1);
+            color: #fff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid rgba(217, 22, 86, 0.1);
+        }
+
+        th {
+            background: rgba(217, 22, 86, 0.1);
+            color: #D91656;
+            font-weight: 600;
+        }
+
+        td {
+            color: #fff;
+        }
+
+        .user-status {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .status-active {
+            background: rgba(46, 213, 115, 0.1);
+            color: #2ed573;
+        }
+
+        .status-inactive {
+            background: rgba(255, 71, 87, 0.1);
+            color: #ff4757;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: none;
+            background: rgba(217, 22, 86, 0.1);
+            color: #D91656;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-btn:hover {
+            background: rgba(217, 22, 86, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .page-btn {
+            padding: 8px 15px;
+            border-radius: 6px;
+            border: none;
+            background: rgba(217, 22, 86, 0.1);
+            color: #D91656;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .page-btn.active {
+            background: #D91656;
+            color: #fff;
+        }
+
+        .page-btn:hover:not(.active) {
+            background: rgba(217, 22, 86, 0.2);
+        }
+    </style>
 </head>
 <body>
     <div class="admin-container">
-        <!-- Copy sidebar from admindash.html -->
-        
-        <!-- Main Content -->
         <div class="main-content">
             <div class="page-header">
                 <h1>User Management</h1>
@@ -24,22 +229,66 @@
             <div class="page-content">
                 <!-- User Management Tools -->
                 <div class="user-management-tools">
-                    <button class="add-user-btn">
+                    <button class="tool-btn">
                         <i class="fas fa-user-plus"></i>
                         Add New User
                     </button>
-                    <button class="import-users-btn">
+                    <button class="tool-btn">
                         <i class="fas fa-file-import"></i>
                         Import Users
                     </button>
-                    <button class="export-users-btn">
+                    <button class="tool-btn">
                         <i class="fas fa-file-export"></i>
                         Export Users
                     </button>
+                    <button class="tool-btn">
+                        <i class="fas fa-envelope"></i>
+                        Bulk Email
+                    </button>
+                </div>
+
+                <!-- User Stats -->
+                <div class="user-stats">
+                    <div class="stat-card">
+                        <i class="fas fa-users"></i>
+                        <h4>Total Users</h4>
+                        <p>1,234</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-user-check"></i>
+                        <h4>Active Users</h4>
+                        <p>1,180</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-user-clock"></i>
+                        <h4>New This Month</h4>
+                        <p>48</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-user-slash"></i>
+                        <h4>Inactive Users</h4>
+                        <p>54</p>
+                    </div>
                 </div>
 
                 <!-- Users Table -->
                 <div class="users-table">
+                    <div class="table-header">
+                        <h3>User List</h3>
+                        <div class="table-filters">
+                            <select class="filter-select">
+                                <option>All Roles</option>
+                                <option>Admin</option>
+                                <option>User</option>
+                                <option>Manager</option>
+                            </select>
+                            <select class="filter-select">
+                                <option>All Status</option>
+                                <option>Active</option>
+                                <option>Inactive</option>
+                            </select>
+                        </div>
+                    </div>
                     <table>
                         <thead>
                             <tr>
@@ -52,14 +301,59 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Sample user rows -->
+                            <tr>
+                                <td>001</td>
+                                <td>John Doe</td>
+                                <td>john@example.com</td>
+                                <td>User</td>
+                                <td><span class="user-status status-active">Active</span></td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="action-btn" title="View"><i class="fas fa-eye"></i></button>
+                                        <button class="action-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                                        <button class="action-btn" title="Delete"><i class="fas fa-trash"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>002</td>
+                                <td>Jane Smith</td>
+                                <td>jane@example.com</td>
+                                <td>Admin</td>
+                                <td><span class="user-status status-active">Active</span></td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="action-btn" title="View"><i class="fas fa-eye"></i></button>
+                                        <button class="action-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                                        <button class="action-btn" title="Delete"><i class="fas fa-trash"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>003</td>
+                                <td>Mike Johnson</td>
+                                <td>mike@example.com</td>
+                                <td>User</td>
+                                <td><span class="user-status status-inactive">Inactive</span></td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="action-btn" title="View"><i class="fas fa-eye"></i></button>
+                                        <button class="action-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                                        <button class="action-btn" title="Delete"><i class="fas fa-trash"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
 
                 <!-- Pagination -->
                 <div class="pagination">
-                    <!-- Pagination controls -->
+                    <button class="page-btn"><i class="fas fa-chevron-left"></i></button>
+                    <button class="page-btn active">1</button>
+                    <button class="page-btn">2</button>
+                    <button class="page-btn">3</button>
+                    <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
                 </div>
             </div>
         </div>
